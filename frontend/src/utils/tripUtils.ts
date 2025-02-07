@@ -4,7 +4,7 @@ export const createRoutePoint = (
   geoPoint: GeoPoint,
   tripId: string,
   speed?: number,
-  heading?: number,
+  heading?: number
 ): RoutePoint => ({
   ...geoPoint,
   id: Date.now().toString(),

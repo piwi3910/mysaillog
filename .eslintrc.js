@@ -33,18 +33,11 @@ module.exports = {
     'react-native/no-inline-styles': 'warn',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
-    'react-native/no-color-literals': ['error', { allowThemedColors: true }],
   },
   settings: {
     react: {
       version: 'detect',
     },
   },
-  ignorePatterns: [
-    'node_modules/',
-    'dist/',
-    'build/',
-    '*.config.js',
-    'frontend/src/theme/colors.ts',
-  ],
+  ignorePatterns: ['node_modules/', 'dist/', 'build/', '*.config.js'],
 };

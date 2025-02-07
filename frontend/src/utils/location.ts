@@ -13,15 +13,15 @@ const openLocationSettings = async () => {
 export const requestLocationPermissions = async (): Promise<boolean> => {
   try {
     const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
-
+    
     if (foregroundStatus !== 'granted') {
       Alert.alert(
         'Location Permission Required',
         'MySailLog needs location access to track your sailing trips. Please enable location services in your device settings.',
         [
           { text: 'Open Settings', onPress: openLocationSettings },
-          { text: 'Cancel', style: 'cancel' },
-        ],
+          { text: 'Cancel', style: 'cancel' }
+        ]
       );
       return false;
     }
@@ -33,8 +33,8 @@ export const requestLocationPermissions = async (): Promise<boolean> => {
         'Background location access helps track your entire trip. Without it, tracking may be interrupted when the app is in the background.',
         [
           { text: 'Open Settings', onPress: openLocationSettings },
-          { text: 'Continue Anyway', style: 'cancel' },
-        ],
+          { text: 'Continue Anyway', style: 'cancel' }
+        ]
       );
     }
 
@@ -64,14 +64,14 @@ export const getCurrentLocation = async (): Promise<GeoPoint | null> => {
     console.error('Error getting current location:', error);
     Alert.alert(
       'Location Error',
-      'Unable to get your current location. Please check your device settings and ensure you have a clear view of the sky.',
+      'Unable to get your current location. Please check your device settings and ensure you have a clear view of the sky.'
     );
     return null;
   }
 };
 
 export const startLocationTracking = async (
-  onLocationUpdate: (location: GeoPoint) => void,
+  onLocationUpdate: (location: GeoPoint) => void
 ): Promise<() => void> => {
   const hasPermission = await requestLocationPermissions();
   if (!hasPermission) {
@@ -84,12 +84,12 @@ export const startLocationTracking = async (
       timeInterval: 5000,
       distanceInterval: 10,
     },
-    location => {
+    (location) => {
       onLocationUpdate({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
-    },
+    }
   );
 
   return () => subscription.remove();

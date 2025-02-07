@@ -55,46 +55,46 @@ export const AppNavigator = () => {
           },
         })}
       >
-        <Tab.Screen
-          name="Home"
+        <Tab.Screen 
+          name="Home" 
           component={HomeScreen}
           options={{
-            title: 'MySailLog',
+            title: 'MySailLog'
           }}
         />
-        <Tab.Screen
-          name="Trip"
+        <Tab.Screen 
+          name="Trip" 
           component={TripScreen}
           options={{
-            title: 'Trip Log',
+            title: 'Trip Log'
           }}
         />
-        <Tab.Screen
-          name="History"
+        <Tab.Screen 
+          name="History" 
           component={TripHistoryScreen}
           options={{
-            title: 'History',
+            title: 'History'
           }}
         />
-        <Tab.Screen
-          name="Analytics"
+        <Tab.Screen 
+          name="Analytics" 
           component={AnalyticsScreen}
           options={{
-            title: 'Analytics',
+            title: 'Analytics'
           }}
         />
-        <Tab.Screen
-          name="Vessels"
+        <Tab.Screen 
+          name="Vessels" 
           component={VesselScreen}
           options={{
-            title: 'Vessels',
+            title: 'Vessels'
           }}
         />
-        <Tab.Screen
-          name="Settings"
+        <Tab.Screen 
+          name="Settings" 
           component={SettingsScreen}
           options={{
-            title: 'Settings',
+            title: 'Settings'
           }}
         />
       </Tab.Navigator>

@@ -35,8 +35,8 @@ export const HomeScreen = () => {
       const loadedVessels = vesselsData ? JSON.parse(vesselsData) : [];
 
       // Get recent trips
-      const sortedTrips = loadedTrips.sort(
-        (a: Trip, b: Trip) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
+      const sortedTrips = loadedTrips.sort((a: Trip, b: Trip) => 
+        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
       );
       setRecentTrips(sortedTrips.slice(0, 3));
 
@@ -73,7 +73,9 @@ export const HomeScreen = () => {
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.welcomeText}>Welcome to MySailLog</Text>
-            <Text style={styles.statsText}>Total Distance: {totalDistance.toFixed(1)} nm</Text>
+            <Text style={styles.statsText}>
+              Total Distance: {totalDistance.toFixed(1)} nm
+            </Text>
           </View>
 
           <View style={styles.quickActions}>
@@ -97,7 +99,7 @@ export const HomeScreen = () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Recent Trips</Text>
             {recentTrips.length > 0 ? (
-              recentTrips.map(trip => {
+              recentTrips.map((trip) => {
                 const vessel = vessels.find(v => v.id === trip.vesselId);
                 const stats = calculateTripStats(trip);
                 return (
@@ -107,12 +109,18 @@ export const HomeScreen = () => {
                     onPress={() => navigation.navigate('History' as never)}
                   >
                     <View style={styles.tripInfo}>
-                      <Text style={styles.tripDate}>{formatDate(trip.startTime)}</Text>
+                      <Text style={styles.tripDate}>
+                        {formatDate(trip.startTime)}
+                      </Text>
                       <Text style={styles.vesselName}>{vessel?.name}</Text>
                     </View>
                     <View style={styles.tripStats}>
-                      <Text style={styles.tripDistance}>{stats.totalDistance.toFixed(1)} nm</Text>
-                      <Text style={styles.tripDuration}>{stats.duration} min</Text>
+                      <Text style={styles.tripDistance}>
+                        {stats.totalDistance.toFixed(1)} nm
+                      </Text>
+                      <Text style={styles.tripDuration}>
+                        {stats.duration} min
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 );
@@ -125,7 +133,7 @@ export const HomeScreen = () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>My Vessels</Text>
             {vessels.length > 0 ? (
-              vessels.map(vessel => (
+              vessels.map((vessel) => (
                 <TouchableOpacity
                   key={vessel.id}
                   style={styles.vesselCard}
@@ -149,7 +157,10 @@ export const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: '#fff',
+  },
+  scrollView: {
     flex: 1,
   },
   content: {
@@ -158,35 +169,31 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
   },
-  noTripsText: {
-    color: '#666',
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  statsText: {
     fontSize: 16,
-    fontStyle: 'italic',
-  },
-  noVesselsText: {
     color: '#666',
-    fontSize: 16,
-    fontStyle: 'italic',
-  },
-  quickActionButton: {
-    alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    borderRadius: 10,
-    padding: 15,
-    width: (Dimensions.get('window').width - 60) / 3,
-  },
-  quickActionLabel: {
-    color: '#007AFF',
-    fontSize: 12,
-    marginTop: 5,
   },
   quickActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 30,
   },
-  scrollView: {
-    flex: 1,
+  quickActionButton: {
+    alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+    padding: 15,
+    borderRadius: 10,
+    width: (Dimensions.get('window').width - 60) / 3,
+  },
+  quickActionLabel: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#007AFF',
   },
   section: {
     marginBottom: 30,
@@ -196,43 +203,43 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 15,
   },
-  statsText: {
-    color: '#666',
-    fontSize: 16,
-  },
   tripCard: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    backgroundColor: '#f8f8f8',
     padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  tripInfo: {
+    flex: 1,
   },
   tripDate: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 5,
   },
-  tripDistance: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  tripDuration: {
-    color: '#666',
+  vesselName: {
     fontSize: 14,
-  },
-  tripInfo: {
-    flex: 1,
+    color: '#666',
   },
   tripStats: {
     alignItems: 'flex-end',
   },
+  tripDistance: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
+  tripDuration: {
+    fontSize: 14,
+    color: '#666',
+  },
   vesselCard: {
     backgroundColor: '#f8f8f8',
+    padding: 15,
     borderRadius: 10,
     marginBottom: 10,
-    padding: 15,
   },
   vesselCardName: {
     fontSize: 16,
@@ -240,17 +247,18 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   vesselDetails: {
-    color: '#666',
     fontSize: 14,
-  },
-  vesselName: {
     color: '#666',
-    fontSize: 14,
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 5,
+  noTripsText: {
+    fontSize: 16,
+    color: '#666',
+    fontStyle: 'italic',
+  },
+  noVesselsText: {
+    fontSize: 16,
+    color: '#666',
+    fontStyle: 'italic',
   },
 });
 

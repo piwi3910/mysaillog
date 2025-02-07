@@ -18,7 +18,7 @@ app.use(express.json());
 const dbSetup = async () => {
   const db = await open({
     filename: path.resolve(__dirname, '../data/mysaillog.db'),
-    driver: sqlite3.Database,
+    driver: sqlite3.Database
   });
 
   // Create tables based on schema

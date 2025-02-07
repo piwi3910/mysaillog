@@ -79,26 +79,28 @@ export const VesselScreen = () => {
               style={styles.input}
               placeholder="Vessel Name *"
               value={newVessel.name}
-              onChangeText={text => setNewVessel({ ...newVessel, name: text })}
+              onChangeText={(text) => setNewVessel({ ...newVessel, name: text })}
             />
             <TextInput
               style={styles.input}
               placeholder="Vessel Type *"
               value={newVessel.type}
-              onChangeText={text => setNewVessel({ ...newVessel, type: text })}
+              onChangeText={(text) => setNewVessel({ ...newVessel, type: text })}
             />
             <TextInput
               style={styles.input}
               placeholder="Length (meters) *"
               value={newVessel.length}
-              onChangeText={text => setNewVessel({ ...newVessel, length: text })}
+              onChangeText={(text) => setNewVessel({ ...newVessel, length: text })}
               keyboardType="numeric"
             />
             <TextInput
               style={styles.input}
               placeholder="Registration Number (optional)"
               value={newVessel.registrationNumber}
-              onChangeText={text => setNewVessel({ ...newVessel, registrationNumber: text })}
+              onChangeText={(text) =>
+                setNewVessel({ ...newVessel, registrationNumber: text })
+              }
             />
             <TouchableOpacity style={styles.button} onPress={saveVessel}>
               <Text style={styles.buttonText}>Add Vessel</Text>
@@ -108,14 +110,15 @@ export const VesselScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>My Vessels</Text>
-          {vessels.map(vessel => (
+          {vessels.map((vessel) => (
             <View key={vessel.id} style={styles.vesselCard}>
               <Text style={styles.vesselName}>{vessel.name}</Text>
               <Text style={styles.vesselDetails}>
                 Type: {vessel.type}
                 {'\n'}
                 Length: {vessel.length}m
-                {vessel.registrationNumber && `\nReg: ${vessel.registrationNumber}`}
+                {vessel.registrationNumber &&
+                  `\nReg: ${vessel.registrationNumber}`}
               </Text>
             </View>
           ))}
@@ -126,59 +129,59 @@ export const VesselScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    marginTop: 10,
-    padding: 15,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
   container: {
-    backgroundColor: '#fff',
     flex: 1,
-  },
-  form: {
-    gap: 10,
-  },
-  input: {
-    borderColor: '#ddd',
-    borderRadius: 8,
-    borderWidth: 1,
-    fontSize: 16,
-    padding: 12,
+    backgroundColor: '#fff',
   },
   scrollView: {
     flex: 1,
   },
   section: {
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
     padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 15,
   },
+  form: {
+    gap: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
   vesselCard: {
     backgroundColor: '#f8f8f8',
+    padding: 15,
     borderRadius: 8,
     marginBottom: 10,
-    padding: 15,
-  },
-  vesselDetails: {
-    color: '#666',
-    fontSize: 14,
   },
   vesselName: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
+  },
+  vesselDetails: {
+    fontSize: 14,
+    color: '#666',
   },
 });
 

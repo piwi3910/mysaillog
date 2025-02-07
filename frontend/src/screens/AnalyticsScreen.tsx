@@ -45,7 +45,7 @@ export const AnalyticsScreen = () => {
       if (tripsData) {
         const loadedTrips: Trip[] = JSON.parse(tripsData);
         setTrips(loadedTrips);
-
+        
         const calculatedStats = calculateSailingStats(loadedTrips);
         setStats(calculatedStats);
 
@@ -114,7 +114,9 @@ export const AnalyticsScreen = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <View style={styles.content}>
           <Text style={styles.title}>Sailing Analytics</Text>
@@ -126,11 +128,15 @@ export const AnalyticsScreen = () => {
               <Text style={styles.statLabel}>Total Trips</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{stats.totalDistance.toFixed(1)}</Text>
+              <Text style={styles.statValue}>
+                {stats.totalDistance.toFixed(1)}
+              </Text>
               <Text style={styles.statLabel}>Total NM</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{(stats.totalDuration / 60).toFixed(1)}</Text>
+              <Text style={styles.statValue}>
+                {(stats.totalDuration / 60).toFixed(1)}
+              </Text>
               <Text style={styles.statLabel}>Total Hours</Text>
             </View>
           </View>
@@ -175,7 +181,9 @@ export const AnalyticsScreen = () => {
             <Text style={styles.weatherText}>
               Temperature: {stats.mostFrequentConditions.temperature.toFixed(1)}°C
             </Text>
-            <Text style={styles.weatherText}>Max Speed: {stats.maxSpeed.toFixed(1)} knots</Text>
+            <Text style={styles.weatherText}>
+              Max Speed: {stats.maxSpeed.toFixed(1)} knots
+            </Text>
           </View>
 
           {/* Performance Stats */}
@@ -195,15 +203,54 @@ export const AnalyticsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  chart: {
-    borderRadius: 16,
-    marginVertical: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  noDataText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 50,
+    color: '#666',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  statCard: {
+    backgroundColor: '#f8f8f8',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 5,
   },
   chartContainer: {
+    marginBottom: 20,
     backgroundColor: '#fff',
     borderRadius: 10,
-    elevation: 5,
-    marginBottom: 20,
     padding: 15,
     shadowColor: '#000',
     shadowOffset: {
@@ -212,81 +259,42 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
+    elevation: 5,
   },
   chartTitle: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 10,
   },
-  container: {
-    backgroundColor: '#fff',
-    flex: 1,
+  chart: {
+    marginVertical: 8,
+    borderRadius: 16,
   },
-  content: {
-    padding: 20,
-  },
-  noDataText: {
-    color: '#666',
-    fontSize: 16,
-    marginTop: 50,
-    textAlign: 'center',
-  },
-  performanceStats: {
+  weatherStats: {
     backgroundColor: '#f8f8f8',
+    padding: 15,
     borderRadius: 10,
     marginBottom: 20,
-    padding: 15,
-  },
-  performanceText: {
-    color: '#666',
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  scrollView: {
-    flex: 1,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 10,
   },
-  statCard: {
-    alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    borderRadius: 10,
-    flex: 1,
-    marginHorizontal: 5,
-    padding: 15,
-  },
-  statLabel: {
-    color: '#666',
-    fontSize: 12,
-    marginTop: 5,
-  },
-  statValue: {
-    color: '#007AFF',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  weatherStats: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 10,
-    marginBottom: 20,
-    padding: 15,
-  },
   weatherText: {
-    color: '#666',
     fontSize: 16,
+    color: '#666',
+    marginBottom: 5,
+  },
+  performanceStats: {
+    backgroundColor: '#f8f8f8',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  performanceText: {
+    fontSize: 16,
+    color: '#666',
     marginBottom: 5,
   },
 });

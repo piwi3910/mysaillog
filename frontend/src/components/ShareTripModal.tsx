@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Alert,
+} from 'react-native';
 import { Trip, Vessel } from '../types';
 import { shareTripAsText, exportTripData } from '../utils/sharing';
 
@@ -31,14 +38,18 @@ export const ShareTripModal: React.FC<ShareTripModalProps> = ({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+    >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Share Trip</Text>
-
+          
           <Text style={styles.tripInfo}>
-            {new Date(trip.startTime).toLocaleDateString()}
-            {'\n'}
+            {new Date(trip.startTime).toLocaleDateString()}{'\n'}
             {vessel.name} - {vessel.type}
           </Text>
 
@@ -57,7 +68,10 @@ export const ShareTripModal: React.FC<ShareTripModalProps> = ({
               <Text style={styles.buttonText}>Export Data</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onClose}>
+            <TouchableOpacity
+              style={[styles.button, styles.cancelButton]}
+              onPress={onClose}
+            >
               <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
@@ -68,29 +82,10 @@ export const ShareTripModal: React.FC<ShareTripModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    borderRadius: 8,
-    padding: 15,
-  },
-  buttonContainer: {
-    gap: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    backgroundColor: '#8E8E93',
-  },
-  exportButton: {
-    backgroundColor: '#34C759',
-  },
   modalContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     flex: 1,
     justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: 20,
   },
   modalContent: {
@@ -104,14 +99,33 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
+  tripInfo: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#666',
+  },
+  buttonContainer: {
+    gap: 10,
+  },
+  button: {
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
   shareButton: {
     backgroundColor: '#007AFF',
   },
-  tripInfo: {
-    color: '#666',
+  exportButton: {
+    backgroundColor: '#34C759',
+  },
+  cancelButton: {
+    backgroundColor: '#8E8E93',
+  },
+  buttonText: {
+    color: '#fff',
     fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
+    fontWeight: '600',
   },
 });
 

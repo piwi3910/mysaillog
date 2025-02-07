@@ -74,23 +74,20 @@ export const TripScreen = () => {
     };
   }, []);
 
-  const updateWeatherInfo = useCallback(
-    async (location: GeoPoint) => {
-      try {
-        const weatherInfo = await fetchWeatherData(location);
-        setWeatherData(weatherInfo);
-        if (activeTrip) {
-          setActiveTrip(prev => ({
-            ...prev!,
-            weatherConditions: [...prev!.weatherConditions, weatherInfo],
-          }));
-        }
-      } catch (error) {
-        console.error('Error updating weather:', error);
+  const updateWeatherInfo = useCallback(async (location: GeoPoint) => {
+    try {
+      const weatherInfo = await fetchWeatherData(location);
+      setWeatherData(weatherInfo);
+      if (activeTrip) {
+        setActiveTrip(prev => ({
+          ...prev!,
+          weatherConditions: [...prev!.weatherConditions, weatherInfo],
+        }));
       }
-    },
-    [activeTrip],
-  );
+    } catch (error) {
+      console.error('Error updating weather:', error);
+    }
+  }, [activeTrip]);
 
   const startNewTrip = async () => {
     if (!selectedVessel) {
@@ -119,10 +116,10 @@ export const TripScreen = () => {
       route: [initialRoutePoint],
     };
 
-    const stopTracking = await startLocationTracking(location => {
+    const stopTracking = await startLocationTracking((location) => {
       const newRoutePoint = createRoutePoint(location, tripId);
       setCurrentLocation(location);
-      setRoutePoints(prev => [...prev, newRoutePoint]);
+      setRoutePoints((prev) => [...prev, newRoutePoint]);
       if (activeTrip) {
         const updatedTrip = {
           ...activeTrip,
@@ -135,14 +132,11 @@ export const TripScreen = () => {
     });
 
     // Set up weather update interval
-    const interval = setInterval(
-      () => {
-        if (currentLocation) {
-          updateWeatherInfo(currentLocation);
-        }
-      },
-      15 * 60 * 1000,
-    ); // Update every 15 minutes
+    const interval = setInterval(() => {
+      if (currentLocation) {
+        updateWeatherInfo(currentLocation);
+      }
+    }, 15 * 60 * 1000); // Update every 15 minutes
     setWeatherUpdateInterval(interval);
 
     setActiveTrip(newTrip);
@@ -167,7 +161,7 @@ export const TripScreen = () => {
 
     const finalRoutePoint = createRoutePoint(currentLocation, activeTrip.id);
     const finalWeather = await fetchWeatherData(currentLocation);
-
+    
     const endedTrip = {
       ...activeTrip,
       endTime: new Date(),
@@ -179,15 +173,18 @@ export const TripScreen = () => {
     try {
       const storedTrips = await AsyncStorage.getItem('trips');
       const trips = storedTrips ? JSON.parse(storedTrips) : [];
-      await AsyncStorage.setItem('trips', JSON.stringify([...trips, endedTrip]));
+      await AsyncStorage.setItem(
+        'trips',
+        JSON.stringify([...trips, endedTrip])
+      );
 
       const finalStats = calculateTripStats(endedTrip);
       Alert.alert(
         'Trip Summary',
         `Distance: ${finalStats.totalDistance.toFixed(1)} nm\n` +
-          `Duration: ${finalStats.duration} minutes\n` +
-          `Max Speed: ${finalStats.maxSpeed.toFixed(1)} knots\n` +
-          `Weather: ${finalWeather.notes}`,
+        `Duration: ${finalStats.duration} minutes\n` +
+        `Max Speed: ${finalStats.maxSpeed.toFixed(1)} knots\n` +
+        `Weather: ${finalWeather.notes}`
       );
 
       setActiveTrip(null);
@@ -229,7 +226,11 @@ export const TripScreen = () => {
               >
                 <Marker coordinate={currentLocation} />
                 {routePoints.length > 1 && (
-                  <Polyline coordinates={routePoints} strokeColor="#007AFF" strokeWidth={3} />
+                  <Polyline
+                    coordinates={routePoints}
+                    strokeColor="#007AFF"
+                    strokeWidth={3}
+                  />
                 )}
               </MapView>
             </View>
@@ -237,14 +238,24 @@ export const TripScreen = () => {
 
           {!activeTrip ? (
             <View style={styles.startTripContainer}>
-              <TouchableOpacity style={styles.button} onPress={() => setShowVesselModal(true)}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setShowVesselModal(true)}
+              >
                 <Text style={styles.buttonText}>
-                  {selectedVessel ? `Selected: ${selectedVessel.name}` : 'Select Vessel'}
+                  {selectedVessel
+                    ? `Selected: ${selectedVessel.name}`
+                    : 'Select Vessel'}
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.button} onPress={() => setShowCrewModal(true)}>
-                <Text style={styles.buttonText}>Add Crew Members ({crewMembers.length})</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setShowCrewModal(true)}
+              >
+                <Text style={styles.buttonText}>
+                  Add Crew Members ({crewMembers.length})
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -258,13 +269,15 @@ export const TripScreen = () => {
           ) : (
             <View style={styles.activeTripContainer}>
               <Text style={styles.title}>Active Trip</Text>
-
+              
               {tripStats && (
                 <View style={styles.statsContainer}>
                   <Text style={styles.statsText}>
                     Distance: {tripStats.totalDistance.toFixed(1)} nm
                   </Text>
-                  <Text style={styles.statsText}>Duration: {tripStats.duration} min</Text>
+                  <Text style={styles.statsText}>
+                    Duration: {tripStats.duration} min
+                  </Text>
                   <Text style={styles.statsText}>
                     Max Speed: {tripStats.maxSpeed.toFixed(1)} kts
                   </Text>
@@ -273,7 +286,10 @@ export const TripScreen = () => {
 
               <WeatherDisplay weather={weatherData} />
 
-              <TouchableOpacity style={[styles.button, styles.endButton]} onPress={endTrip}>
+              <TouchableOpacity
+                style={[styles.button, styles.endButton]}
+                onPress={endTrip}
+              >
                 <Text style={styles.buttonText}>End Trip</Text>
               </TouchableOpacity>
             </View>
@@ -282,12 +298,16 @@ export const TripScreen = () => {
       </ScrollView>
 
       {/* Vessel Selection Modal */}
-      <Modal visible={showVesselModal} animationType="slide" transparent={true}>
+      <Modal
+        visible={showVesselModal}
+        animationType="slide"
+        transparent={true}
+      >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Select Vessel</Text>
             <ScrollView>
-              {vessels.map(vessel => (
+              {vessels.map((vessel) => (
                 <TouchableOpacity
                   key={vessel.id}
                   style={styles.vesselItem}
@@ -303,7 +323,10 @@ export const TripScreen = () => {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            <TouchableOpacity style={styles.button} onPress={() => setShowVesselModal(false)}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setShowVesselModal(false)}
+            >
               <Text style={styles.buttonText}>Close</Text>
             </TouchableOpacity>
           </View>
@@ -311,7 +334,11 @@ export const TripScreen = () => {
       </Modal>
 
       {/* Crew Members Modal */}
-      <Modal visible={showCrewModal} animationType="slide" transparent={true}>
+      <Modal
+        visible={showCrewModal}
+        animationType="slide"
+        transparent={true}
+      >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add Crew Member</Text>
@@ -319,15 +346,22 @@ export const TripScreen = () => {
               style={styles.input}
               placeholder="Name"
               value={newCrewMember.name}
-              onChangeText={text => setNewCrewMember({ ...newCrewMember, name: text })}
+              onChangeText={(text) =>
+                setNewCrewMember({ ...newCrewMember, name: text })
+              }
             />
             <TextInput
               style={styles.input}
               placeholder="Role"
               value={newCrewMember.role}
-              onChangeText={text => setNewCrewMember({ ...newCrewMember, role: text })}
+              onChangeText={(text) =>
+                setNewCrewMember({ ...newCrewMember, role: text })
+              }
             />
-            <TouchableOpacity style={styles.button} onPress={addCrewMember}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={addCrewMember}
+            >
               <Text style={styles.buttonText}>Add</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -356,131 +390,131 @@ export const TripScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  activeTripContainer: {
-    gap: 15,
-  },
-  button: {
-    alignItems: 'center',
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    padding: 15,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    backgroundColor: '#8E8E93',
-    marginTop: 10,
-  },
   container: {
+    flex: 1,
     backgroundColor: '#fff',
+  },
+  scrollView: {
     flex: 1,
   },
   content: {
     padding: 20,
   },
-  crewItem: {
-    alignItems: 'center',
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-  },
-  crewList: {
-    borderTopColor: '#eee',
-    borderTopWidth: 1,
-    marginTop: 20,
-    paddingTop: 15,
-  },
-  crewName: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  crewRole: {
-    color: '#666',
-    fontSize: 14,
-  },
-  endButton: {
-    backgroundColor: '#FF3B30',
-  },
-  input: {
-    borderColor: '#ddd',
-    borderRadius: 8,
-    borderWidth: 1,
-    fontSize: 16,
-    marginBottom: 10,
-    padding: 12,
+  mapContainer: {
+    height: 300,
+    marginBottom: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
   },
   map: {
     flex: 1,
-  },
-  mapContainer: {
-    borderRadius: 10,
-    height: 300,
-    marginBottom: 20,
-    overflow: 'hidden',
-  },
-  modalContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    maxHeight: '80%',
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  startButton: {
-    backgroundColor: '#34C759',
-  },
-  startTripContainer: {
-    gap: 10,
-  },
-  statsContainer: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    marginBottom: 15,
-    padding: 15,
-  },
-  statsText: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  vesselDetails: {
-    color: '#666',
-    fontSize: 14,
+  subtitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  startTripContainer: {
+    gap: 10,
+  },
+  activeTripContainer: {
+    gap: 15,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  startButton: {
+    backgroundColor: '#34C759',
+  },
+  endButton: {
+    backgroundColor: '#FF3B30',
+  },
+  cancelButton: {
+    backgroundColor: '#8E8E93',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
   },
   vesselItem: {
-    borderBottomColor: '#eee',
-    borderBottomWidth: 1,
     padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   vesselName: {
     fontSize: 18,
     fontWeight: '600',
+  },
+  vesselDetails: {
+    fontSize: 14,
+    color: '#666',
+  },
+  statsContainer: {
+    backgroundColor: '#f5f5f5',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  statsText: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  crewList: {
+    marginTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 15,
+  },
+  crewItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  crewName: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  crewRole: {
+    fontSize: 14,
+    color: '#666',
   },
 });
 
