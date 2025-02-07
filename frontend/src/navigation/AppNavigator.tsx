@@ -1,6 +1,7 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
 import HomeScreen from '../screens/HomeScreen';
@@ -11,10 +12,48 @@ import SettingsScreen from '../screens/SettingsScreen';
 import SafetyScreen from '../screens/SafetyScreen';
 import EquipmentScreen from '../screens/EquipmentScreen';
 import VesselsScreen from '../screens/VesselsScreen';
+import VesselDetailsScreen from '../screens/VesselDetailsScreen';
 import CrewScreen from '../screens/CrewScreen';
+import CrewMemberDetailsScreen from '../screens/CrewMemberDetailsScreen';
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
+const VesselStack = createStackNavigator();
+const CrewStack = createStackNavigator();
+
+function VesselStackNavigator() {
+  return (
+    <VesselStack.Navigator>
+      <VesselStack.Screen
+        name="VesselsList"
+        component={VesselsScreen}
+        options={{ headerShown: false }}
+      />
+      <VesselStack.Screen
+        name="VesselDetails"
+        component={VesselDetailsScreen}
+        options={{ title: 'Vessel Details' }}
+      />
+    </VesselStack.Navigator>
+  );
+}
+
+function CrewStackNavigator() {
+  return (
+    <CrewStack.Navigator>
+      <CrewStack.Screen
+        name="CrewList"
+        component={CrewScreen}
+        options={{ headerShown: false }}
+      />
+      <CrewStack.Screen
+        name="CrewMemberDetails"
+        component={CrewMemberDetailsScreen}
+        options={{ title: 'Crew Member Details' }}
+      />
+    </CrewStack.Navigator>
+  );
+}
 
 function TabNavigator() {
   const theme = useTheme();
@@ -80,7 +119,7 @@ export default function AppNavigator() {
       />
       <Drawer.Screen
         name="Vessels"
-        component={VesselsScreen}
+        component={VesselStackNavigator}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="boat-outline" size={size} color={color} />
@@ -89,7 +128,7 @@ export default function AppNavigator() {
       />
       <Drawer.Screen
         name="Crew"
-        component={CrewScreen}
+        component={CrewStackNavigator}
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="people-outline" size={size} color={color} />
