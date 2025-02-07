@@ -1,32 +1,30 @@
-import React, { createContext, useContext, ReactNode } from 'react';
-import { colors } from './colors';
-
-type Theme = {
-  colors: typeof colors;
-};
-
-const theme: Theme = {
-  colors,
-};
-
-const ThemeContext = createContext<Theme | undefined>(undefined);
-
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
+import React, { ReactNode } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider as PaperProvider, useTheme } from 'react-native-paper';
+import { theme } from './theme';
+import { createNavigationTheme } from './navigation';
 
 type ThemeProviderProps = {
   children: ReactNode;
 };
 
+const NavigationThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+  const paperTheme = useTheme();
+  const navigationTheme = createNavigationTheme(paperTheme);
+
+  return (
+    <NavigationContainer theme={navigationTheme}>
+      {children}
+    </NavigationContainer>
+  );
+};
+
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   return (
-    <ThemeContext.Provider value={theme}>
-      {children}
-    </ThemeContext.Provider>
+    <PaperProvider theme={theme}>
+      <NavigationThemeProvider>
+        {children}
+      </NavigationThemeProvider>
+    </PaperProvider>
   );
 };

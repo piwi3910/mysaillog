@@ -1,98 +1,151 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, ScrollView, SafeAreaView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { useTheme, Text, Switch, List } from 'react-native-paper';
 import { UserSettings } from '../types';
 
-export const SettingsScreen = () => {
-  const [settings, setSettings] = useState<UserSettings>({
-    darkMode: false,
-    units: {
-      speed: 'knots',
-      distance: 'nautical',
-      temperature: 'celsius'
-    }
-  });
+const defaultSettings: UserSettings = {
+  theme: 'light',
+  units: {
+    speed: 'knots',
+    distance: 'nm',
+    temperature: 'celsius',
+  },
+  notifications: {
+    enabled: true,
+    tripStart: true,
+    tripEnd: true,
+    weather: true,
+  },
+};
+
+export const SettingsScreen: React.FC = () => {
+  const theme = useTheme();
+  const [settings, setSettings] = useState<UserSettings>(defaultSettings);
 
   const toggleDarkMode = () => {
     setSettings(prev => ({
       ...prev,
-      darkMode: !prev.darkMode
+      theme: prev.theme === 'light' ? 'dark' : 'light',
     }));
-    // TODO: Implement dark mode persistence
+  };
+
+  const toggleNotifications = (type: keyof UserSettings['notifications']) => {
+    setSettings(prev => ({
+      ...prev,
+      notifications: {
+        ...prev.notifications,
+        [type]: !prev.notifications[type],
+      },
+    }));
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Display</Text>
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Dark Mode</Text>
+    <View style={styles.container}>
+      <List.Section>
+        <List.Subheader>Appearance</List.Subheader>
+        <List.Item
+          title="Dark Mode"
+          right={() => (
             <Switch
-              value={settings.darkMode}
+              value={settings.theme === 'dark'}
               onValueChange={toggleDarkMode}
             />
-          </View>
-        </View>
+          )}
+        />
+      </List.Section>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Units</Text>
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Speed</Text>
-            <Text style={styles.settingValue}>{settings.units?.speed}</Text>
-          </View>
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Distance</Text>
-            <Text style={styles.settingValue}>{settings.units?.distance}</Text>
-          </View>
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Temperature</Text>
-            <Text style={styles.settingValue}>{settings.units?.temperature}</Text>
-          </View>
-        </View>
+      <List.Section>
+        <List.Subheader>Notifications</List.Subheader>
+        <List.Item
+          title="Enable Notifications"
+          right={() => (
+            <Switch
+              value={settings.notifications.enabled}
+              onValueChange={() => toggleNotifications('enabled')}
+            />
+          )}
+        />
+        {settings.notifications.enabled && (
+          <>
+            <List.Item
+              title="Trip Start"
+              right={() => (
+                <Switch
+                  value={settings.notifications.tripStart}
+                  onValueChange={() => toggleNotifications('tripStart')}
+                />
+              )}
+            />
+            <List.Item
+              title="Trip End"
+              right={() => (
+                <Switch
+                  value={settings.notifications.tripEnd}
+                  onValueChange={() => toggleNotifications('tripEnd')}
+                />
+              )}
+            />
+            <List.Item
+              title="Weather Updates"
+              right={() => (
+                <Switch
+                  value={settings.notifications.weather}
+                  onValueChange={() => toggleNotifications('weather')}
+                />
+              )}
+            />
+          </>
+        )}
+      </List.Section>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>App Information</Text>
-          <View style={styles.settingItem}>
-            <Text style={styles.settingLabel}>Version</Text>
-            <Text style={styles.settingValue}>1.0.0</Text>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      <List.Section>
+        <List.Subheader>Units</List.Subheader>
+        <List.Item
+          title="Distance"
+          description={settings.units.distance.toUpperCase()}
+          onPress={() => {
+            setSettings(prev => ({
+              ...prev,
+              units: {
+                ...prev.units,
+                distance: prev.units.distance === 'nm' ? 'km' : 'nm',
+              },
+            }));
+          }}
+        />
+        <List.Item
+          title="Speed"
+          description={settings.units.speed.toUpperCase()}
+          onPress={() => {
+            setSettings(prev => ({
+              ...prev,
+              units: {
+                ...prev.units,
+                speed: prev.units.speed === 'knots' ? 'kph' : 'knots',
+              },
+            }));
+          }}
+        />
+        <List.Item
+          title="Temperature"
+          description={settings.units.temperature.toUpperCase()}
+          onPress={() => {
+            setSettings(prev => ({
+              ...prev,
+              units: {
+                ...prev.units,
+                temperature: prev.units.temperature === 'celsius' ? 'fahrenheit' : 'celsius',
+              },
+            }));
+          }}
+        />
+      </List.Section>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  section: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  settingLabel: {
-    fontSize: 16,
-  },
-  settingValue: {
-    fontSize: 16,
-    color: '#666',
   },
 });
-
-export default SettingsScreen;

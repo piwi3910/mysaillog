@@ -1,102 +1,54 @@
-import { WeatherData, GeoPoint } from '../types';
+import { Location, Weather } from '../types';
 
-const API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY || '';
-const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+export const getCurrentWeather = async (location: Location): Promise<Weather> => {
+  const API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=${API_KEY}&units=metric`;
 
-export const fetchWeatherData = async (location: GeoPoint): Promise<WeatherData> => {
   try {
-    const response = await fetch(
-      `${BASE_URL}/weather?lat=${location.latitude}&lon=${location.longitude}&units=metric&appid=${API_KEY}`
-    );
-    
-    if (!response.ok) {
-      throw new Error('Weather data fetch failed');
-    }
-
+    const response = await fetch(url);
     const data = await response.json();
-    
-    return {
-      timestamp: new Date(),
-      temperature: Math.round(data.main.temp),
-      windSpeed: Math.round(data.wind.speed * 1.944), // Convert m/s to knots
+
+    const weather: Weather = {
+      timestamp: Date.now(),
+      windSpeed: convertMpsToKnots(data.wind.speed),
       windDirection: data.wind.deg,
       pressure: data.main.pressure,
-      notes: data.weather[0].description,
+      temperature: data.main.temp,
+      notes: getWeatherDescription(data.weather[0].description, data.wind.speed),
     };
+
+    return weather;
   } catch (error) {
-    console.error('Error fetching weather data:', error);
-    // Return default weather data if API fails
+    console.error('Error fetching weather:', error);
     return {
-      timestamp: new Date(),
-      temperature: 0,
+      timestamp: Date.now(),
       windSpeed: 0,
       windDirection: 0,
       pressure: 1013,
+      temperature: 20,
       notes: 'Weather data unavailable',
     };
   }
 };
 
-export const getBeaufortScale = (windSpeed: number): number => {
-  const beaufortScale = [
-    { force: 0, maxSpeed: 1 },     // Calm
-    { force: 1, maxSpeed: 3 },     // Light air
-    { force: 2, maxSpeed: 6 },     // Light breeze
-    { force: 3, maxSpeed: 10 },    // Gentle breeze
-    { force: 4, maxSpeed: 16 },    // Moderate breeze
-    { force: 5, maxSpeed: 21 },    // Fresh breeze
-    { force: 6, maxSpeed: 27 },    // Strong breeze
-    { force: 7, maxSpeed: 33 },    // Near gale
-    { force: 8, maxSpeed: 40 },    // Gale
-    { force: 9, maxSpeed: 47 },    // Strong gale
-    { force: 10, maxSpeed: 55 },   // Storm
-    { force: 11, maxSpeed: 63 },   // Violent storm
-    { force: 12, maxSpeed: 999 },  // Hurricane
-  ];
-
-  return beaufortScale.findIndex(scale => windSpeed <= scale.maxSpeed);
-};
-
 export const getWindDescription = (windSpeed: number): string => {
-  const beaufortForce = getBeaufortScale(windSpeed);
-  const descriptions = [
-    'Calm',
-    'Light air',
-    'Light breeze',
-    'Gentle breeze',
-    'Moderate breeze',
-    'Fresh breeze',
-    'Strong breeze',
-    'Near gale',
-    'Gale',
-    'Strong gale',
-    'Storm',
-    'Violent storm',
-    'Hurricane',
-  ];
-
-  return descriptions[beaufortForce];
+  return getBeaufortScale(windSpeed);
 };
 
 export const getSeaState = (windSpeed: number): string => {
-  const beaufortForce = getBeaufortScale(windSpeed);
-  const seaStates = [
-    'Sea like a mirror',
-    'Ripples with appearance of scales',
-    'Small wavelets',
-    'Large wavelets, crests begin to break',
-    'Small waves, becoming longer',
-    'Moderate waves, many whitecaps',
-    'Large waves, white foam crests extensive',
-    'Sea heaps up, foam blown in streaks',
-    'Moderately high waves, crests break into spindrift',
-    'High waves, dense streaks of foam',
-    'Very high waves, surface white with foam',
-    'Exceptionally high waves',
-    'Air filled with foam and spray',
-  ];
-
-  return seaStates[beaufortForce];
+  if (windSpeed < 1) return 'Calm (rippled)';
+  if (windSpeed < 4) return 'Calm (wavelets)';
+  if (windSpeed < 7) return 'Smooth wavelets';
+  if (windSpeed < 11) return 'Slight';
+  if (windSpeed < 17) return 'Moderate';
+  if (windSpeed < 22) return 'Rough';
+  if (windSpeed < 28) return 'Very rough';
+  if (windSpeed < 34) return 'High';
+  if (windSpeed < 41) return 'Very high';
+  if (windSpeed < 48) return 'Phenomenal';
+  if (windSpeed < 56) return 'Phenomenal';
+  if (windSpeed < 64) return 'Phenomenal';
+  return 'Phenomenal';
 };
 
 export const getWindDirectionText = (degrees: number): string => {
@@ -106,6 +58,33 @@ export const getWindDirectionText = (degrees: number): string => {
     'S', 'SSW', 'SW', 'WSW',
     'W', 'WNW', 'NW', 'NNW'
   ];
-  const index = Math.round(degrees / 22.5) % 16;
-  return directions[index];
+  const index = Math.round(((degrees % 360) / 22.5));
+  return directions[index % 16];
+};
+
+const convertMpsToKnots = (mps: number): number => {
+  return mps * 1.944;
+};
+
+const getWeatherDescription = (description: string, windSpeed: number): string => {
+  const beaufortScale = getBeaufortScale(windSpeed);
+  return `${description}, ${beaufortScale}`;
+};
+
+const getBeaufortScale = (windSpeedMps: number): string => {
+  const windSpeedKnots = convertMpsToKnots(windSpeedMps);
+
+  if (windSpeedKnots < 1) return 'Calm';
+  if (windSpeedKnots < 4) return 'Light air';
+  if (windSpeedKnots < 7) return 'Light breeze';
+  if (windSpeedKnots < 11) return 'Gentle breeze';
+  if (windSpeedKnots < 17) return 'Moderate breeze';
+  if (windSpeedKnots < 22) return 'Fresh breeze';
+  if (windSpeedKnots < 28) return 'Strong breeze';
+  if (windSpeedKnots < 34) return 'Near gale';
+  if (windSpeedKnots < 41) return 'Gale';
+  if (windSpeedKnots < 48) return 'Strong gale';
+  if (windSpeedKnots < 56) return 'Storm';
+  if (windSpeedKnots < 64) return 'Violent storm';
+  return 'Hurricane';
 };

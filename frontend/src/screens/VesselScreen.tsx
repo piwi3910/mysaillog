@@ -1,56 +1,36 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  SafeAreaView,
-  Alert,
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { TextInput, Button, Surface, Text, useTheme } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Vessel, Equipment } from '../types';
+import { Vessel } from '../types';
 
-export const VesselScreen = () => {
+const defaultVessel: Omit<Vessel, 'id'> = {
+  name: '',
+  type: '',
+  length: 0,
+  registrationNumber: '',
+  homePort: '',
+  equipment: [],
+};
+
+export const VesselScreen: React.FC = () => {
+  const theme = useTheme();
+  const [newVessel, setNewVessel] = useState<Omit<Vessel, 'id'>>(defaultVessel);
   const [vessels, setVessels] = useState<Vessel[]>([]);
-  const [newVessel, setNewVessel] = useState({
-    name: '',
-    type: '',
-    length: '',
-    registrationNumber: '',
-  });
 
-  const saveVessel = async () => {
-    if (!newVessel.name || !newVessel.type || !newVessel.length) {
-      Alert.alert('Error', 'Please fill in all required fields');
-      return;
-    }
-
-    const vessel: Vessel = {
-      id: Date.now().toString(),
-      userId: 'temp-user-id', // TODO: Replace with actual user ID
-      name: newVessel.name,
-      type: newVessel.type,
-      length: parseFloat(newVessel.length),
-      registrationNumber: newVessel.registrationNumber,
-      equipment: [],
-    };
-
+  const handleSave = async () => {
     try {
+      const vessel: Vessel = {
+        ...newVessel,
+        id: Date.now().toString(),
+      };
+
       const updatedVessels = [...vessels, vessel];
       await AsyncStorage.setItem('vessels', JSON.stringify(updatedVessels));
       setVessels(updatedVessels);
-      setNewVessel({
-        name: '',
-        type: '',
-        length: '',
-        registrationNumber: '',
-      });
-      Alert.alert('Success', 'Vessel added successfully');
+      setNewVessel(defaultVessel);
     } catch (error) {
       console.error('Error saving vessel:', error);
-      Alert.alert('Error', 'Failed to save vessel');
     }
   };
 
@@ -70,118 +50,106 @@ export const VesselScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Add New Vessel</Text>
-          <View style={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder="Vessel Name *"
-              value={newVessel.name}
-              onChangeText={(text) => setNewVessel({ ...newVessel, name: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Vessel Type *"
-              value={newVessel.type}
-              onChangeText={(text) => setNewVessel({ ...newVessel, type: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Length (meters) *"
-              value={newVessel.length}
-              onChangeText={(text) => setNewVessel({ ...newVessel, length: text })}
-              keyboardType="numeric"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Registration Number (optional)"
-              value={newVessel.registrationNumber}
-              onChangeText={(text) =>
-                setNewVessel({ ...newVessel, registrationNumber: text })
-              }
-            />
-            <TouchableOpacity style={styles.button} onPress={saveVessel}>
-              <Text style={styles.buttonText}>Add Vessel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+    <View style={styles.container}>
+      <Surface style={styles.form} elevation={1}>
+        <Text variant="titleLarge" style={styles.title}>Add New Vessel</Text>
+        
+        <TextInput
+          label="Vessel Name"
+          value={newVessel.name}
+          onChangeText={(text) => setNewVessel({ ...newVessel, name: text })}
+          style={styles.input}
+          mode="outlined"
+        />
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>My Vessels</Text>
-          {vessels.map((vessel) => (
-            <View key={vessel.id} style={styles.vesselCard}>
-              <Text style={styles.vesselName}>{vessel.name}</Text>
-              <Text style={styles.vesselDetails}>
-                Type: {vessel.type}
-                {'\n'}
-                Length: {vessel.length}m
-                {vessel.registrationNumber &&
-                  `\nReg: ${vessel.registrationNumber}`}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        <TextInput
+          label="Vessel Type"
+          value={newVessel.type}
+          onChangeText={(text) => setNewVessel({ ...newVessel, type: text })}
+          style={styles.input}
+          mode="outlined"
+        />
+
+        <TextInput
+          label="Length (feet)"
+          value={newVessel.length.toString()}
+          onChangeText={(text) => setNewVessel({ ...newVessel, length: parseFloat(text) || 0 })}
+          keyboardType="numeric"
+          style={styles.input}
+          mode="outlined"
+        />
+
+        <TextInput
+          label="Registration Number"
+          value={newVessel.registrationNumber}
+          onChangeText={(text) => setNewVessel({ ...newVessel, registrationNumber: text })}
+          style={styles.input}
+          mode="outlined"
+        />
+
+        <TextInput
+          label="Home Port"
+          value={newVessel.homePort}
+          onChangeText={(text) => setNewVessel({ ...newVessel, homePort: text })}
+          style={styles.input}
+          mode="outlined"
+        />
+
+        <Button
+          mode="contained"
+          onPress={handleSave}
+          style={styles.button}
+        >
+          Save Vessel
+        </Button>
+      </Surface>
+
+      <View style={styles.vesselList}>
+        <Text variant="titleLarge" style={styles.title}>My Vessels</Text>
+        {vessels.map((vessel) => (
+          <Surface key={vessel.id} style={styles.vesselCard} elevation={1}>
+            <Text variant="titleMedium">{vessel.name}</Text>
+            <Text variant="bodyMedium">{vessel.type}</Text>
+            <Text variant="bodySmall">
+              Registration: {vessel.registrationNumber}
+            </Text>
+            <Text variant="bodySmall">
+              Home Port: {vessel.homePort}
+            </Text>
+          </Surface>
+        ))}
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  section: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
+    padding: 16,
   },
   form: {
-    gap: 10,
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 24,
+  },
+  title: {
+    marginBottom: 16,
+    textAlign: 'center',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    marginBottom: 12,
   },
   button: {
-    backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
+    marginTop: 8,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  vesselList: {
+    flex: 1,
   },
   vesselCard: {
-    backgroundColor: '#f8f8f8',
-    padding: 15,
+    padding: 16,
+    marginBottom: 12,
     borderRadius: 8,
-    marginBottom: 10,
-  },
-  vesselName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  vesselDetails: {
-    fontSize: 14,
-    color: '#666',
   },
 });
 

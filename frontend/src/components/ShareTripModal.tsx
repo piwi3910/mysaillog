@@ -1,21 +1,15 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Modal,
-  Alert,
-} from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Modal, Portal, Text, Button, Surface, useTheme } from 'react-native-paper';
 import { Trip, Vessel } from '../types';
-import { shareTripAsText, exportTripData } from '../utils/sharing';
+import { shareTrip } from '../utils/sharing';
 
-interface ShareTripModalProps {
+type ShareTripModalProps = {
   visible: boolean;
   onClose: () => void;
   trip: Trip;
   vessel: Vessel;
-}
+};
 
 export const ShareTripModal: React.FC<ShareTripModalProps> = ({
   visible,
@@ -23,110 +17,81 @@ export const ShareTripModal: React.FC<ShareTripModalProps> = ({
   trip,
   vessel,
 }) => {
-  const handleShare = async (type: 'text' | 'data') => {
+  const theme = useTheme();
+
+  const handleShare = async () => {
     try {
-      if (type === 'text') {
-        await shareTripAsText(trip, vessel);
-      } else {
-        await exportTripData(trip, vessel);
-      }
+      await shareTrip(trip, vessel);
       onClose();
     } catch (error) {
       console.error('Error sharing trip:', error);
-      Alert.alert('Error', 'Failed to share trip');
     }
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Share Trip</Text>
+    <Portal>
+      <Modal
+        visible={visible}
+        onDismiss={onClose}
+        contentContainerStyle={styles.modalContainer}
+      >
+        <Surface style={styles.surface} elevation={2}>
+          <Text variant="titleLarge" style={styles.title}>Share Trip</Text>
           
-          <Text style={styles.tripInfo}>
-            {new Date(trip.startTime).toLocaleDateString()}{'\n'}
-            {vessel.name} - {vessel.type}
-          </Text>
+          <View style={styles.tripInfo}>
+            <Text variant="bodyLarge">Vessel: {vessel.name}</Text>
+            <Text variant="bodyMedium">Duration: {trip.duration} minutes</Text>
+            <Text variant="bodyMedium">Distance: {trip.distance.toFixed(2)} nm</Text>
+            {trip.weather && (
+              <Text variant="bodyMedium">
+                Weather: {trip.weather.notes}
+              </Text>
+            )}
+          </View>
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.shareButton]}
-              onPress={() => handleShare('text')}
-            >
-              <Text style={styles.buttonText}>Share as Report</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, styles.exportButton]}
-              onPress={() => handleShare('data')}
-            >
-              <Text style={styles.buttonText}>Export Data</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
+            <Button
+              mode="outlined"
               onPress={onClose}
+              style={styles.button}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
+              Cancel
+            </Button>
+            <Button
+              mode="contained"
+              onPress={handleShare}
+              style={styles.button}
+            >
+              Share
+            </Button>
           </View>
-        </View>
-      </View>
-    </Modal>
+        </Surface>
+      </Modal>
+    </Portal>
   );
 };
 
 const styles = StyleSheet.create({
   modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: 20,
   },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
+  surface: {
     padding: 20,
+    borderRadius: 8,
   },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 15,
+  title: {
+    marginBottom: 16,
     textAlign: 'center',
   },
   tripInfo: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#666',
+    marginBottom: 24,
+    gap: 8,
   },
   buttonContainer: {
-    gap: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
   button: {
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  shareButton: {
-    backgroundColor: '#007AFF',
-  },
-  exportButton: {
-    backgroundColor: '#34C759',
-  },
-  cancelButton: {
-    backgroundColor: '#8E8E93',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    minWidth: 120,
   },
 });
-
-export default ShareTripModal;

@@ -1,43 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  SafeAreaView,
-  Dimensions,
-  RefreshControl,
-} from 'react-native';
-import { LineChart, BarChart } from 'react-native-chart-kit';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { Surface, Text, useTheme, MD3Theme } from 'react-native-paper';
+import { LineChart, PieChart } from 'react-native-chart-kit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Trip } from '../types';
-import {
-  calculateSailingStats,
-  getWindRose,
-  getPopularSailingTimes,
-  SailingStats,
-} from '../utils/analytics';
+import { Trip, WindRoseData, PopularSailingTime } from '../types';
+import { calculateTripStats, formatDistance, formatDuration, formatSpeed } from '../utils/tripUtils';
 
 const screenWidth = Dimensions.get('window').width;
 
-export const AnalyticsScreen = () => {
+export const AnalyticsScreen: React.FC = () => {
+  const theme = useTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [trips, setTrips] = useState<Trip[]>([]);
-  const [stats, setStats] = useState<SailingStats | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [monthlyData, setMonthlyData] = useState<{
-    labels: string[];
-    datasets: { data: number[] }[];
-  }>({
-    labels: [],
-    datasets: [{ data: [] }],
-  });
-  const [timeData, setTimeData] = useState<{
-    labels: string[];
-    datasets: { data: number[] }[];
-  }>({
-    labels: [],
-    datasets: [{ data: [] }],
-  });
+  const [windRoseData, setWindRoseData] = useState<WindRoseData[]>([]);
+  const [popularTimes, setPopularTimes] = useState<PopularSailingTime[]>([]);
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const loadData = async () => {
     try {
@@ -45,257 +25,173 @@ export const AnalyticsScreen = () => {
       if (tripsData) {
         const loadedTrips: Trip[] = JSON.parse(tripsData);
         setTrips(loadedTrips);
-        
-        const calculatedStats = calculateSailingStats(loadedTrips);
-        setStats(calculatedStats);
-
-        // Prepare monthly data
-        const monthLabels = Object.keys(calculatedStats.monthlyActivity)
-          .slice(-6)
-          .map(key => key.split('-')[1]); // Show only month part
-        const monthlyDistances = Object.values(calculatedStats.monthlyActivity)
-          .slice(-6)
-          .map(data => data.distance);
-
-        setMonthlyData({
-          labels: monthLabels,
-          datasets: [{ data: monthlyDistances }],
-        });
-
-        // Prepare time of day data
-        const timeLabels = ['Morning', 'Afternoon', 'Evening', 'Night'];
-        const timeValues = [
-          calculatedStats.timeOfDay.morning,
-          calculatedStats.timeOfDay.afternoon,
-          calculatedStats.timeOfDay.evening,
-          calculatedStats.timeOfDay.night,
-        ];
-
-        setTimeData({
-          labels: timeLabels,
-          datasets: [{ data: timeValues }],
-        });
+        analyzeTrips(loadedTrips);
       }
     } catch (error) {
-      console.error('Error loading analytics data:', error);
+      console.error('Error loading trips:', error);
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const analyzeTrips = (trips: Trip[]) => {
+    const tripStats = trips.map(calculateTripStats);
+    const totalDistance = tripStats.reduce((sum, stat) => sum + stat.distance, 0);
+    const totalDuration = tripStats.reduce((sum, stat) => sum + stat.duration, 0);
+    const averageSpeed = totalDistance / (totalDuration / 60);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
+    // Wind rose data
+    const windData = calculateWindRoseData(trips);
+    setWindRoseData(windData);
+
+    // Popular sailing times
+    const timeData = calculatePopularTimes(trips);
+    setPopularTimes(timeData);
+  };
+
+  const calculateWindRoseData = (trips: Trip[]): WindRoseData[] => {
+    const windDirections: { [key: string]: { count: number; totalSpeed: number } } = {};
+
+    trips.forEach(trip => {
+      trip.weatherLog.forEach(weather => {
+        const direction = Math.round(weather.windDirection / 45) * 45;
+        const dirKey = direction.toString();
+        if (!windDirections[dirKey]) {
+          windDirections[dirKey] = { count: 0, totalSpeed: 0 };
+        }
+        windDirections[dirKey].count++;
+        windDirections[dirKey].totalSpeed += weather.windSpeed;
+      });
+    });
+
+    return Object.entries(windDirections).map(([direction, data]) => ({
+      direction: parseInt(direction),
+      frequency: data.count,
+      speed: data.totalSpeed / data.count,
+    }));
+  };
+
+  const calculatePopularTimes = (trips: Trip[]): PopularSailingTime[] => {
+    const hourCounts = new Array(24).fill(0);
+
+    trips.forEach(trip => {
+      const startHour = new Date(trip.startTime).getHours();
+      hourCounts[startHour]++;
+    });
+
+    return hourCounts.map((count, hour) => ({
+      hour,
+      frequency: (count / trips.length) * 100,
+    }));
   };
 
   const chartConfig = {
-    backgroundColor: '#ffffff',
-    backgroundGradientFrom: '#ffffff',
-    backgroundGradientTo: '#ffffff',
-    decimalPlaces: 1,
-    color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
-    style: {
-      borderRadius: 16,
+    backgroundGradientFrom: theme.colors.surface,
+    backgroundGradientTo: theme.colors.surface,
+    color: (opacity = 1) => theme.colors.primary,
+    labelColor: (opacity = 1) => theme.colors.onSurface,
+    strokeWidth: 2,
+    barPercentage: 0.5,
+    useShadowColorFromDataset: false,
+    decimalPlaces: 0,
+    propsForLabels: {
+      fontSize: 12,
     },
   };
 
-  if (!stats) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.noDataText}>No sailing data available</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <View style={styles.content}>
-          <Text style={styles.title}>Sailing Analytics</Text>
-
-          {/* Overview Stats */}
-          <View style={styles.statsContainer}>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>{stats.totalTrips}</Text>
-              <Text style={styles.statLabel}>Total Trips</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>
-                {stats.totalDistance.toFixed(1)}
-              </Text>
-              <Text style={styles.statLabel}>Total NM</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>
-                {(stats.totalDuration / 60).toFixed(1)}
-              </Text>
-              <Text style={styles.statLabel}>Total Hours</Text>
-            </View>
+    <ScrollView style={styles.container}>
+      <Surface style={styles.card} elevation={1}>
+        <Text variant="titleLarge" style={styles.cardTitle}>Trip Statistics</Text>
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text variant="headlineMedium">{trips.length}</Text>
+            <Text variant="bodyMedium">Total Trips</Text>
           </View>
-
-          {/* Monthly Distance Chart */}
-          <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Monthly Distance (NM)</Text>
-            <LineChart
-              data={monthlyData}
-              width={screenWidth - 40}
-              height={220}
-              chartConfig={chartConfig}
-              bezier
-              style={styles.chart}
-              yAxisLabel=""
-              yAxisSuffix=" nm"
-            />
-          </View>
-
-          {/* Sailing Time Distribution */}
-          <View style={styles.chartContainer}>
-            <Text style={styles.chartTitle}>Sailing Time Distribution</Text>
-            <BarChart
-              data={timeData}
-              width={screenWidth - 40}
-              height={220}
-              chartConfig={chartConfig}
-              style={styles.chart}
-              showValuesOnTopOfBars
-              yAxisLabel=""
-              yAxisSuffix=" trips"
-              fromZero
-            />
-          </View>
-
-          {/* Weather Stats */}
-          <View style={styles.weatherStats}>
-            <Text style={styles.sectionTitle}>Average Conditions</Text>
-            <Text style={styles.weatherText}>
-              Wind Speed: {stats.mostFrequentConditions.windSpeed.toFixed(1)} knots
+          <View style={styles.statItem}>
+            <Text variant="headlineMedium">
+              {formatDistance(trips.reduce((sum, trip) => {
+                const stats = calculateTripStats(trip);
+                return sum + stats.distance;
+              }, 0))}
             </Text>
-            <Text style={styles.weatherText}>
-              Temperature: {stats.mostFrequentConditions.temperature.toFixed(1)}°C
-            </Text>
-            <Text style={styles.weatherText}>
-              Max Speed: {stats.maxSpeed.toFixed(1)} knots
-            </Text>
-          </View>
-
-          {/* Performance Stats */}
-          <View style={styles.performanceStats}>
-            <Text style={styles.sectionTitle}>Performance</Text>
-            <Text style={styles.performanceText}>
-              Average Trip Length: {stats.averageTripLength.toFixed(1)} nm
-            </Text>
-            <Text style={styles.performanceText}>
-              Average Speed: {stats.averageSpeed.toFixed(1)} knots
-            </Text>
+            <Text variant="bodyMedium">Total Distance</Text>
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </Surface>
+
+      <Surface style={styles.card} elevation={1}>
+        <Text variant="titleLarge" style={styles.cardTitle}>Popular Sailing Times</Text>
+        <LineChart
+          data={{
+            labels: popularTimes.filter((_, i) => i % 3 === 0).map(t => `${t.hour}h`),
+            datasets: [{
+              data: popularTimes.map(t => t.frequency),
+            }],
+          }}
+          width={screenWidth - 32}
+          height={220}
+          chartConfig={chartConfig}
+          bezier
+          style={styles.chart}
+          withInnerLines={false}
+          withOuterLines={true}
+          withVerticalLines={false}
+          withHorizontalLines={true}
+          withVerticalLabels={true}
+          withHorizontalLabels={true}
+          fromZero={true}
+        />
+      </Surface>
+
+      <Surface style={styles.card} elevation={1}>
+        <Text variant="titleLarge" style={styles.cardTitle}>Wind Conditions</Text>
+        <PieChart
+          data={windRoseData.map(data => ({
+            name: `${data.direction}°`,
+            population: data.frequency,
+            color: theme.colors.primary,
+            legendFontColor: theme.colors.onSurface,
+          }))}
+          width={screenWidth - 32}
+          height={220}
+          chartConfig={chartConfig}
+          accessor="population"
+          backgroundColor="transparent"
+          paddingLeft="15"
+          center={[screenWidth / 4, 0]}
+          absolute
+        />
+      </Surface>
+    </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: MD3Theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    padding: 16,
+    backgroundColor: theme.colors.background,
   },
-  scrollView: {
-    flex: 1,
+  card: {
+    padding: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    backgroundColor: theme.colors.surface,
   },
-  content: {
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  noDataText: {
-    fontSize: 16,
+  cardTitle: {
+    marginBottom: 16,
     textAlign: 'center',
-    marginTop: 50,
-    color: '#666',
   },
-  statsContainer: {
+  statsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
+    justifyContent: 'space-around',
+    marginBottom: 16,
   },
-  statCard: {
-    backgroundColor: '#f8f8f8',
-    padding: 15,
-    borderRadius: 10,
+  statItem: {
     alignItems: 'center',
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#007AFF',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 5,
-  },
-  chartContainer: {
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  chartTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 10,
   },
   chart: {
     marginVertical: 8,
-    borderRadius: 16,
-  },
-  weatherStats: {
-    backgroundColor: '#f8f8f8',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
-  weatherText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
-  },
-  performanceStats: {
-    backgroundColor: '#f8f8f8',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  performanceText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
+    borderRadius: 8,
   },
 });
 
