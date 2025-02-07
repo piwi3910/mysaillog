@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   Text,
   Button,
   Surface,
   TextInput,
   List,
-  IconButton,
   Portal,
   Modal,
   useTheme,
@@ -18,6 +17,7 @@ import {
   SafetyStorage,
   EmergencyStorage,
 } from '../utils/storage';
+import PhotoGallery from '../components/PhotoGallery';
 
 export const SafetyScreen: React.FC = () => {
   const theme = useTheme();
@@ -28,6 +28,8 @@ export const SafetyScreen: React.FC = () => {
   const [showAddContactModal, setShowAddContactModal] = useState(false);
   const [showAddCheckModal, setShowAddCheckModal] = useState(false);
   const [selectedVesselId, setSelectedVesselId] = useState<string>('');
+  const [selectedCheck, setSelectedCheck] = useState<SafetyCheck | null>(null);
+  const [showCheckDetails, setShowCheckDetails] = useState(false);
 
   const [newContact, setNewContact] = useState<Omit<EmergencyContact, 'id'>>({
     name: '',
@@ -115,20 +117,27 @@ export const SafetyScreen: React.FC = () => {
         </Text>
         {safetyChecks.map((check) => (
           <Surface key={check.id} style={styles.checklistCard} elevation={1}>
-            {check.items.map((item, index) => (
-              <List.Item
-                key={`${check.id}-${index}`}
-                title={item.name}
-                description={item.notes}
-                left={(props) => (
-                  <List.Icon
-                    {...props}
-                    icon={item.checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
-                  />
-                )}
-                onPress={() => toggleCheckItem(check.id, index)}
-              />
-            ))}
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedCheck(check);
+                setShowCheckDetails(true);
+              }}
+            >
+              {check.items.map((item, index) => (
+                <List.Item
+                  key={`${check.id}-${index}`}
+                  title={item.name}
+                  description={item.notes}
+                  left={(props) => (
+                    <List.Icon
+                      {...props}
+                      icon={item.checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                    />
+                  )}
+                  onPress={() => toggleCheckItem(check.id, index)}
+                />
+              ))}
+            </TouchableOpacity>
           </Surface>
         ))}
         <Button
@@ -164,6 +173,46 @@ export const SafetyScreen: React.FC = () => {
       </Surface>
 
       <Portal>
+        <Modal
+          visible={showCheckDetails}
+          onDismiss={() => {
+            setSelectedCheck(null);
+            setShowCheckDetails(false);
+          }}
+          contentContainerStyle={styles.modalContent}
+        >
+          {selectedCheck && (
+            <Surface style={styles.modalSurface} elevation={2}>
+              <Text variant="titleLarge" style={styles.modalTitle}>
+                Safety Check Details
+              </Text>
+              
+              <PhotoGallery
+                type="safety"
+                relatedId={selectedCheck.id}
+              />
+
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Check Items
+              </Text>
+              {selectedCheck.items.map((item, index) => (
+                <List.Item
+                  key={index}
+                  title={item.name}
+                  description={item.notes}
+                  left={(props) => (
+                    <List.Icon
+                      {...props}
+                      icon={item.checked ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                    />
+                  )}
+                  onPress={() => toggleCheckItem(selectedCheck.id, index)}
+                />
+              ))}
+            </Surface>
+          )}
+        </Modal>
+
         <Modal
           visible={showAddContactModal}
           onDismiss={() => setShowAddContactModal(false)}
@@ -282,6 +331,7 @@ const createStyles = (theme: MD3Theme) =>
     },
     modalContent: {
       padding: 20,
+      maxHeight: '90%',
     },
     modalSurface: {
       padding: 20,

@@ -1,30 +1,40 @@
-import React, { ReactNode } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { Provider as PaperProvider, useTheme } from 'react-native-paper';
-import { theme } from './theme';
-import { createNavigationTheme } from './navigation';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useColorScheme } from 'react-native';
+import { lightTheme, darkTheme } from './theme';
 
-type ThemeProviderProps = {
-  children: ReactNode;
-};
+type Theme = typeof lightTheme;
 
-const NavigationThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const paperTheme = useTheme();
-  const navigationTheme = createNavigationTheme(paperTheme);
+interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
+  isDark: boolean;
+}
+
+const ThemeContext = createContext<ThemeContextType>({
+  theme: lightTheme,
+  toggleTheme: () => {},
+  isDark: false,
+});
+
+export const useAppTheme = () => useContext(ThemeContext);
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const colorScheme = useColorScheme();
+  const [isDark, setIsDark] = useState(colorScheme === 'dark');
+
+  useEffect(() => {
+    setIsDark(colorScheme === 'dark');
+  }, [colorScheme]);
+
+  const theme = isDark ? darkTheme : lightTheme;
+
+  const toggleTheme = () => {
+    setIsDark(!isDark);
+  };
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark }}>
       {children}
-    </NavigationContainer>
-  );
-};
-
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  return (
-    <PaperProvider theme={theme}>
-      <NavigationThemeProvider>
-        {children}
-      </NavigationThemeProvider>
-    </PaperProvider>
+    </ThemeContext.Provider>
   );
 };

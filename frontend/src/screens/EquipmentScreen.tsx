@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   Text,
   Button,
@@ -19,6 +19,15 @@ import {
   MaintenanceStorage,
 } from '../utils/storage';
 import { timestampToDate } from '../types';
+import PhotoGallery from '../components/PhotoGallery';
+
+declare global {
+  namespace ReactNativePaper {
+    interface MD3Colors {
+      warning: string;
+    }
+  }
+}
 
 export const EquipmentScreen: React.FC = () => {
   const theme = useTheme();
@@ -29,6 +38,7 @@ export const EquipmentScreen: React.FC = () => {
   const [showAddEquipmentModal, setShowAddEquipmentModal] = useState(false);
   const [showAddMaintenanceModal, setShowAddMaintenanceModal] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
+  const [showEquipmentDetails, setShowEquipmentDetails] = useState(false);
 
   const [newEquipment, setNewEquipment] = useState<Omit<Equipment, 'id'>>({
     name: '',
@@ -130,36 +140,43 @@ export const EquipmentScreen: React.FC = () => {
           const status = getMaintenanceStatus(item);
           return (
             <Surface key={item.id} style={styles.equipmentCard} elevation={1}>
-              <View style={styles.equipmentHeader}>
-                <View>
-                  <Text variant="titleMedium">{item.name}</Text>
-                  <Text variant="bodyMedium">{item.type}</Text>
-                </View>
-                <Chip
-                  mode="flat"
-                  textStyle={{ color: theme.colors.surface }}
-                  style={{ backgroundColor: status.color }}
-                >
-                  {status.label}
-                </Chip>
-              </View>
-              <Text variant="bodySmall">
-                Last Maintenance: {timestampToDate(item.lastMaintenance).toLocaleDateString()}
-              </Text>
-              <Text variant="bodySmall">
-                Next Due: {timestampToDate(item.nextMaintenance).toLocaleDateString()}
-              </Text>
-              {item.notes && <Text variant="bodySmall">Notes: {item.notes}</Text>}
-              <Button
-                mode="outlined"
+              <TouchableOpacity
                 onPress={() => {
                   setSelectedEquipment(item);
-                  setShowAddMaintenanceModal(true);
+                  setShowEquipmentDetails(true);
                 }}
-                style={styles.button}
               >
-                Log Maintenance
-              </Button>
+                <View style={styles.equipmentHeader}>
+                  <View>
+                    <Text variant="titleMedium">{item.name}</Text>
+                    <Text variant="bodyMedium">{item.type}</Text>
+                  </View>
+                  <Chip
+                    mode="flat"
+                    textStyle={{ color: theme.colors.surface }}
+                    style={{ backgroundColor: status.color }}
+                  >
+                    {status.label}
+                  </Chip>
+                </View>
+                <Text variant="bodySmall">
+                  Last Maintenance: {timestampToDate(item.lastMaintenance).toLocaleDateString()}
+                </Text>
+                <Text variant="bodySmall">
+                  Next Due: {timestampToDate(item.nextMaintenance).toLocaleDateString()}
+                </Text>
+                {item.notes && <Text variant="bodySmall">Notes: {item.notes}</Text>}
+                <Button
+                  mode="outlined"
+                  onPress={() => {
+                    setSelectedEquipment(item);
+                    setShowAddMaintenanceModal(true);
+                  }}
+                  style={styles.button}
+                >
+                  Log Maintenance
+                </Button>
+              </TouchableOpacity>
             </Surface>
           );
         })}
@@ -172,33 +189,48 @@ export const EquipmentScreen: React.FC = () => {
         </Button>
       </Surface>
 
-      <Surface style={styles.section} elevation={1}>
-        <Text variant="titleLarge" style={styles.sectionTitle}>
-          Maintenance History
-        </Text>
-        {maintenanceLogs
-          .sort((a, b) => b.timestamp - a.timestamp)
-          .map((log) => {
-            const relatedEquipment = equipment.find(eq => eq.id === log.equipmentId);
-            return (
-              <Surface key={log.id} style={styles.maintenanceCard} elevation={1}>
-                <Text variant="titleMedium">
-                  {relatedEquipment?.name || 'Unknown Equipment'}
-                </Text>
-                <Text variant="bodyMedium">
-                  {timestampToDate(log.timestamp).toLocaleDateString()}
-                </Text>
-                <Text variant="bodyMedium">Type: {log.type}</Text>
-                <Text variant="bodyMedium">Description: {log.description}</Text>
-                {log.cost > 0 && (
-                  <Text variant="bodyMedium">Cost: ${log.cost.toFixed(2)}</Text>
-                )}
-              </Surface>
-            );
-          })}
-      </Surface>
-
       <Portal>
+        <Modal
+          visible={showEquipmentDetails}
+          onDismiss={() => {
+            setSelectedEquipment(null);
+            setShowEquipmentDetails(false);
+          }}
+          contentContainerStyle={styles.modalContent}
+        >
+          {selectedEquipment && (
+            <Surface style={styles.modalSurface} elevation={2}>
+              <Text variant="titleLarge" style={styles.modalTitle}>
+                {selectedEquipment.name}
+              </Text>
+              
+              <PhotoGallery
+                type="equipment"
+                relatedId={selectedEquipment.id}
+              />
+
+              <Text variant="titleMedium" style={styles.sectionTitle}>
+                Maintenance History
+              </Text>
+              {maintenanceLogs
+                .filter(log => log.equipmentId === selectedEquipment.id)
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .map(log => (
+                  <Surface key={log.id} style={styles.maintenanceCard} elevation={1}>
+                    <Text variant="bodyMedium">
+                      {timestampToDate(log.timestamp).toLocaleDateString()}
+                    </Text>
+                    <Text variant="bodyMedium">Type: {log.type}</Text>
+                    <Text variant="bodyMedium">Description: {log.description}</Text>
+                    {log.cost > 0 && (
+                      <Text variant="bodyMedium">Cost: ${log.cost.toFixed(2)}</Text>
+                    )}
+                  </Surface>
+                ))}
+            </Surface>
+          )}
+        </Modal>
+
         <Modal
           visible={showAddEquipmentModal}
           onDismiss={() => setShowAddEquipmentModal(false)}
@@ -315,6 +347,7 @@ const createStyles = (theme: MD3Theme) =>
     },
     modalContent: {
       padding: 20,
+      maxHeight: '90%',
     },
     modalSurface: {
       padding: 20,
