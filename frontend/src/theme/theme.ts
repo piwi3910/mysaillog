@@ -38,29 +38,30 @@ export const lightTheme = {
 
 export const darkTheme = {
   ...MD3DarkTheme,
+  dark: true,
   colors: {
     ...MD3DarkTheme.colors,
     // Primary colors with better contrast
-    primary: '#66B2FF',
-    onPrimary: colors.black,
-    primaryContainer: '#004C99',
-    onPrimaryContainer: '#CCE5FF',
+    primary: '#82B1FF',
+    onPrimary: '#000000',
+    primaryContainer: '#1565C0',
+    onPrimaryContainer: '#E3F2FD',
     
     // Secondary colors with better contrast
-    secondary: '#50E070',
-    onSecondary: colors.black,
-    secondaryContainer: '#005321',
-    onSecondaryContainer: '#95F5A8',
+    secondary: '#69F0AE',
+    onSecondary: '#000000',
+    secondaryContainer: '#2E7D32',
+    onSecondaryContainer: '#B9F6CA',
     
-    // True black background
-    background: colors.black,
-    onBackground: colors.white,
-    surface: colors.black,
-    onSurface: colors.white,
+    // Dark background with better readability
+    background: '#121212',
+    onBackground: '#FFFFFF',
+    surface: '#1E1E1E',
+    onSurface: '#FFFFFF',
     
     // Surface variants with better contrast
-    surfaceVariant: '#121212',
-    onSurfaceVariant: colors.grey[300],
+    surfaceVariant: '#2C2C2C',
+    onSurfaceVariant: '#E0E0E0',
     
     // Error colors with better contrast
     error: '#FF5252',
@@ -72,14 +73,14 @@ export const darkTheme = {
     outline: colors.grey[500],
     outlineVariant: colors.grey[700],
     
-    // Elevation with true black base
+    // Elevation with better contrast and depth
     elevation: {
-      level0: colors.black,
-      level1: '#121212',
-      level2: '#1E1E1E',
-      level3: '#222222',
-      level4: '#242424',
-      level5: '#272727',
+      level0: '#121212',
+      level1: '#1E1E1E',
+      level2: '#222222',
+      level3: '#272727',
+      level4: '#2C2C2C',
+      level5: '#323232',
     },
   },
 };
