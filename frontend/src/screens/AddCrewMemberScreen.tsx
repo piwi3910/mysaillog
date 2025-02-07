@@ -1,41 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import { CrewStackParamList } from '../types/navigation';
 import { CrewMember } from '../types/crew';
-
-type CrewStackParamList = {
-  CrewList: undefined;
-  CrewMemberDetails: { crewMember: CrewMember };
-  AddCrewMember: undefined;
-};
+import ImagePickerButton from '../components/ImagePickerButton';
 
 type AddCrewMemberScreenNavigationProp = StackNavigationProp<CrewStackParamList, 'AddCrewMember'>;
+type AddCrewMemberScreenRouteProp = RouteProp<CrewStackParamList, 'AddCrewMember'>;
 
 interface AddCrewMemberScreenProps {
   navigation: AddCrewMemberScreenNavigationProp;
+  route: AddCrewMemberScreenRouteProp;
 }
 
-export default function AddCrewMemberScreen({ navigation }: AddCrewMemberScreenProps) {
+export default function AddCrewMemberScreen({ navigation, route }: AddCrewMemberScreenProps) {
   const theme = useTheme();
+  const editingCrewMember = route.params?.crewMember;
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
+  const [image, setImage] = useState<string | undefined>(undefined);
   const [emergencyContactName, setEmergencyContactName] = useState('');
   const [emergencyContactPhone, setEmergencyContactPhone] = useState('');
   const [emergencyContactRelation, setEmergencyContactRelation] = useState('');
 
+  useEffect(() => {
+    if (editingCrewMember) {
+      setFirstName(editingCrewMember.firstName);
+      setLastName(editingCrewMember.lastName);
+      setPhoneNumber(editingCrewMember.phoneNumber);
+      setEmail(editingCrewMember.email || '');
+      setRole(editingCrewMember.role || '');
+      setImage(editingCrewMember.image);
+      if (editingCrewMember.emergencyContact) {
+        setEmergencyContactName(editingCrewMember.emergencyContact.name);
+        setEmergencyContactPhone(editingCrewMember.emergencyContact.phoneNumber);
+        setEmergencyContactRelation(editingCrewMember.emergencyContact.relationship);
+      }
+    }
+  }, [editingCrewMember]);
+
   const handleSubmit = () => {
     // TODO: Add proper validation and API call
-    const newCrewMember: CrewMember = {
-      id: Date.now().toString(), // Temporary ID generation
+    const crewMemberData: CrewMember = {
+      id: editingCrewMember?.id || Date.now().toString(), // Temporary ID generation
       firstName,
       lastName,
       phoneNumber,
       email,
       role,
+      image,
       emergencyContact: {
         name: emergencyContactName,
         phoneNumber: emergencyContactPhone,
@@ -43,12 +61,17 @@ export default function AddCrewMemberScreen({ navigation }: AddCrewMemberScreenP
       },
     };
 
-    // TODO: Add crew member to the database
+    // TODO: Add/Update crew member in the database
     navigation.goBack();
   };
 
   return (
     <ScrollView style={styles.container}>
+      <ImagePickerButton
+        onImageSelected={setImage}
+        existingImage={image}
+      />
+
       <TextInput
         label="First Name"
         value={firstName}
@@ -120,7 +143,7 @@ export default function AddCrewMemberScreen({ navigation }: AddCrewMemberScreenP
           style={styles.button}
           disabled={!firstName || !lastName || !phoneNumber}
         >
-          Add Crew Member
+          {editingCrewMember ? 'Update Crew Member' : 'Add Crew Member'}
         </Button>
         <Button
           mode="outlined"
