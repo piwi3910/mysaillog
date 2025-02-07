@@ -98,18 +98,23 @@ export default function AlphabeticalList<T>({ data, getLabel, onSelect, selected
         style={styles.list}
       />
       <Surface style={[styles.alphabetList, { elevation: 1 }]}>
-        {alphabet.map((letter) => (
-          <TouchableRipple
-            key={letter}
-            onPress={() => scrollToLetter(letter)}
-            style={styles.letterButton}
-            borderless
-          >
-            <Text variant="labelMedium" style={[styles.letter, { color: theme.colors.primary }]}>
-              {letter}
-            </Text>
-          </TouchableRipple>
-        ))}
+        <FlatList
+          data={alphabet}
+          renderItem={({ item: letter }) => (
+            <TouchableRipple
+              onPress={() => scrollToLetter(letter)}
+              style={styles.letterButton}
+              borderless
+            >
+              <Text variant="labelMedium" style={[styles.letter, { color: theme.colors.primary }]}>
+                {letter}
+              </Text>
+            </TouchableRipple>
+          )}
+          keyExtractor={letter => letter}
+          showsVerticalScrollIndicator={false}
+          style={styles.letterList}
+        />
       </Surface>
     </View>
   );
@@ -136,12 +141,13 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    width: 38,
     borderTopLeftRadius: 4,
     borderBottomLeftRadius: 4,
+  },
+  letterList: {
+    flex: 1,
+    paddingVertical: 8,
   },
   letterButton: {
     width: 28,
@@ -149,6 +155,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 14,
+    alignSelf: 'center',
+    marginVertical: 2,
   },
   letter: {
     fontWeight: 'bold',
