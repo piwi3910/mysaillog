@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "MySailLog",
+    "slug": "mysaillog",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mysaillog.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "MySailLog needs access to location to track your sailing trips and record routes.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "MySailLog uses your location in the background to continue tracking your sailing trips even when the app is not active.",
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ]
+      }
+    },
+    "android": {
+      "package": "com.mysaillog.app",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow MySailLog to use your location to track your sailing trips and record routes.",
+          "locationAlwaysPermission": "Allow MySailLog to use your location in the background to continue tracking your sailing trips even when the app is not active.",
+          "locationWhenInUsePermission": "Allow MySailLog to use your location to track your sailing trips and record routes."
+        }
+      ]
+    ],
+    "newArchEnabled": true
+  }
+}
