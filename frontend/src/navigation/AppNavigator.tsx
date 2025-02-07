@@ -17,11 +17,12 @@ import AddVesselScreen from '../screens/AddVesselScreen';
 import CrewScreen from '../screens/CrewScreen';
 import CrewMemberDetailsScreen from '../screens/CrewMemberDetailsScreen';
 import AddCrewMemberScreen from '../screens/AddCrewMemberScreen';
+import { VesselStackParamList, CrewStackParamList } from '../types/navigation';
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
-const VesselStack = createStackNavigator();
-const CrewStack = createStackNavigator();
+const VesselStack = createStackNavigator<VesselStackParamList>();
+const CrewStack = createStackNavigator<CrewStackParamList>();
 
 function VesselStackNavigator() {
   return (
@@ -39,7 +40,9 @@ function VesselStackNavigator() {
       <VesselStack.Screen
         name="AddVessel"
         component={AddVesselScreen}
-        options={{ title: 'Add New Vessel' }}
+        options={({ route }) => ({
+          title: route.params?.vessel ? 'Edit Vessel' : 'Add New Vessel'
+        })}
       />
     </VesselStack.Navigator>
   );
@@ -61,7 +64,9 @@ function CrewStackNavigator() {
       <CrewStack.Screen
         name="AddCrewMember"
         component={AddCrewMemberScreen}
-        options={{ title: 'Add New Crew Member' }}
+        options={({ route }) => ({
+          title: route.params?.crewMember ? 'Edit Crew Member' : 'Add New Crew Member'
+        })}
       />
     </CrewStack.Navigator>
   );
