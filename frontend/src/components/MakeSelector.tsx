@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Button, Menu, Searchbar, useTheme } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import { Button, Portal, Modal, useTheme } from 'react-native-paper';
 import { vesselMakes } from '../data/vesselMakes';
+import AlphabeticalList from './AlphabeticalList';
 
 interface MakeSelectorProps {
   value: string;
@@ -11,50 +12,51 @@ interface MakeSelectorProps {
 export default function MakeSelector({ value, onSelect }: MakeSelectorProps) {
   const theme = useTheme();
   const [visible, setVisible] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
+  const openModal = () => setVisible(true);
+  const closeModal = () => setVisible(false);
 
-  const filteredMakes = vesselMakes.filter(make =>
-    make.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSelect = (make: string) => {
+    onSelect(make);
+    closeModal();
+  };
 
   return (
     <View style={styles.container}>
-      <Menu
-        visible={visible}
-        onDismiss={closeMenu}
-        anchor={
+      <Button
+        mode="outlined"
+        onPress={openModal}
+        style={styles.button}
+      >
+        {value || 'Select Make'}
+      </Button>
+
+      <Portal>
+        <Modal
+          visible={visible}
+          onDismiss={closeModal}
+          contentContainerStyle={[
+            styles.modal,
+            { backgroundColor: theme.colors.surface }
+          ]}
+        >
+          <View style={styles.listContainer}>
+            <AlphabeticalList
+              data={vesselMakes}
+              getLabel={(item) => item}
+              onSelect={handleSelect}
+              selectedValue={value}
+            />
+          </View>
           <Button
             mode="outlined"
-            onPress={openMenu}
-            style={styles.button}
+            onPress={closeModal}
+            style={styles.cancelButton}
           >
-            {value || 'Select Make'}
+            Cancel
           </Button>
-        }
-        contentStyle={styles.menuContent}
-      >
-        <Searchbar
-          placeholder="Search makes..."
-          onChangeText={setSearchQuery}
-          value={searchQuery}
-          style={styles.searchBar}
-        />
-        <ScrollView style={styles.scrollView}>
-          {filteredMakes.map((make) => (
-            <Menu.Item
-              key={make}
-              onPress={() => {
-                onSelect(make);
-                closeMenu();
-              }}
-              title={make}
-            />
-          ))}
-        </ScrollView>
-      </Menu>
+        </Modal>
+      </Portal>
     </View>
   );
 }
@@ -66,14 +68,16 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
   },
-  menuContent: {
-    maxHeight: 400,
-    width: 300,
+  modal: {
+    margin: 20,
+    borderRadius: 8,
+    padding: 0,
+    height: '80%',
   },
-  searchBar: {
-    margin: 8,
+  listContainer: {
+    flex: 1,
   },
-  scrollView: {
-    maxHeight: 300,
+  cancelButton: {
+    margin: 16,
   },
 });
