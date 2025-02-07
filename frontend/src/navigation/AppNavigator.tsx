@@ -4,67 +4,35 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper';
 import HomeScreen from '../screens/HomeScreen';
 import TripScreen from '../screens/TripScreen';
-import TripHistoryScreen from '../screens/TripHistoryScreen';
-import AnalyticsScreen from '../screens/AnalyticsScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
-import SafetyScreen from '../screens/SafetyScreen';
-import EquipmentScreen from '../screens/EquipmentScreen';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { NavigationContainer } from '@react-navigation/native';
+import DrawerNavigator from './DrawerNavigator';
 
 const Tab = createBottomTabNavigator();
-const SafetyTab = createMaterialTopTabNavigator();
-
-function SafetyTabNavigator() {
-  return (
-    <SafetyTab.Navigator>
-      <SafetyTab.Screen name="Checks" component={SafetyScreen} />
-      <SafetyTab.Screen name="Equipment" component={EquipmentScreen} />
-    </SafetyTab.Navigator>
-  );
-}
 
 export default function AppNavigator() {
   const theme = useTheme();
 
-  const getTabBarIcon = ({ route, focused, color, size }: {
-    route: { name: string };
-    focused: boolean;
-    color: string;
-    size: number;
-  }) => {
-    let iconName: keyof typeof Ionicons.glyphMap;
-
-    switch (route.name) {
-      case 'Home':
-        iconName = focused ? 'home' : 'home-outline';
-        break;
-      case 'Trip':
-        iconName = focused ? 'boat' : 'boat-outline';
-        break;
-      case 'Safety':
-        iconName = focused ? 'shield-checkmark' : 'shield-checkmark-outline';
-        break;
-      case 'History':
-        iconName = focused ? 'time' : 'time-outline';
-        break;
-      case 'Analytics':
-        iconName = focused ? 'stats-chart' : 'stats-chart-outline';
-        break;
-      case 'Settings':
-        iconName = focused ? 'settings' : 'settings-outline';
-        break;
-      default:
-        iconName = 'help-circle-outline';
-    }
-
-    return <Ionicons name={iconName} size={size} color={color} />;
-  };
-
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: (props) => getTabBarIcon({ route, ...props }),
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap;
+
+          switch (route.name) {
+            case 'Home':
+              iconName = focused ? 'home' : 'home-outline';
+              break;
+            case 'Trip':
+              iconName = focused ? 'boat' : 'boat-outline';
+              break;
+            case 'Menu':
+              iconName = focused ? 'menu' : 'menu-outline';
+              break;
+            default:
+              iconName = 'help-circle-outline';
+          }
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
         tabBarStyle: {
@@ -72,19 +40,28 @@ export default function AppNavigator() {
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Trip" component={TripScreen} />
-      <Tab.Screen 
-        name="Safety" 
-        component={SafetyTabNavigator}
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
         options={{
-          title: 'Safety & Equipment',
-          tabBarLabel: 'Safety',
+          headerShown: false
         }}
       />
-      <Tab.Screen name="History" component={TripHistoryScreen} />
-      <Tab.Screen name="Analytics" component={AnalyticsScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen
+        name="Trip"
+        component={TripScreen}
+        options={{
+          headerShown: false
+        }}
+      />
+      <Tab.Screen
+        name="Menu"
+        component={DrawerNavigator}
+        options={{
+          headerShown: false,
+          tabBarLabel: 'More'
+        }}
+      />
     </Tab.Navigator>
   );
 }
