@@ -1,18 +1,17 @@
 import React, { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ThemeProvider, useAppTheme } from './src/theme/ThemeProvider';
-import { navigationTheme } from './src/theme/theme';
 import { initializeSync } from './src/utils/sync';
 
 const AppContent = () => {
   const { theme } = useAppTheme();
 
   return (
-    <NavigationContainer theme={theme.dark ? navigationTheme.dark : navigationTheme.light}>
+    <NavigationContainer theme={theme.dark ? DarkTheme : DefaultTheme}>
       <PaperProvider theme={theme}>
         <AppNavigator />
       </PaperProvider>
