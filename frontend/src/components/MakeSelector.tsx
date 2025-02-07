@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Button, Portal, Modal, useTheme } from 'react-native-paper';
+import { TextInput, Portal, Modal, useTheme, Button } from 'react-native-paper';
 import { vesselMakes } from '../data/vesselMakes';
 import AlphabeticalList from './AlphabeticalList';
 
@@ -23,13 +23,14 @@ export default function MakeSelector({ value, onSelect }: MakeSelectorProps) {
 
   return (
     <View style={styles.container}>
-      <Button
+      <TextInput
+        label="Make"
+        value={value}
         mode="outlined"
-        onPress={openModal}
-        style={styles.button}
-      >
-        {value || 'Select Make'}
-      </Button>
+        onPressIn={openModal}
+        showSoftInputOnFocus={false}
+        right={<TextInput.Icon icon="chevron-down" />}
+      />
 
       <Portal>
         <Modal
@@ -49,7 +50,7 @@ export default function MakeSelector({ value, onSelect }: MakeSelectorProps) {
             />
           </View>
           <Button
-            mode="outlined"
+            mode="text"
             onPress={closeModal}
             style={styles.cancelButton}
           >
@@ -65,9 +66,6 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 16,
   },
-  button: {
-    width: '100%',
-  },
   modal: {
     margin: 20,
     borderRadius: 8,
@@ -78,6 +76,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cancelButton: {
-    margin: 16,
+    margin: 8,
   },
 });
