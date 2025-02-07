@@ -6,6 +6,7 @@ import { RouteProp } from '@react-navigation/native';
 import { VesselStackParamList } from '../types/navigation';
 import { Vessel } from '../types/vessel';
 import ImagePickerButton from '../components/ImagePickerButton';
+import MakeSelector from '../components/MakeSelector';
 
 type AddVesselScreenNavigationProp = StackNavigationProp<VesselStackParamList, 'AddVessel'>;
 type AddVesselScreenRouteProp = RouteProp<VesselStackParamList, 'AddVessel'>;
@@ -76,12 +77,9 @@ export default function AddVesselScreen({ navigation, route }: AddVesselScreenPr
         mode="outlined"
         style={styles.input}
       />
-      <TextInput
-        label="Make"
+      <MakeSelector
         value={make}
-        onChangeText={setMake}
-        mode="outlined"
-        style={styles.input}
+        onSelect={setMake}
       />
       <TextInput
         label="Model"
