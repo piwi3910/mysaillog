@@ -3,6 +3,19 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { FAB, List, useTheme, Portal, Modal, Button, Divider, Avatar } from 'react-native-paper';
 import { CrewMember } from '../types/crew';
 import { Ionicons } from '@expo/vector-icons';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type CrewStackParamList = {
+  CrewList: undefined;
+  CrewMemberDetails: { crewMember: CrewMember };
+  AddCrewMember: undefined;
+};
+
+type CrewScreenNavigationProp = StackNavigationProp<CrewStackParamList, 'CrewList'>;
+
+interface CrewScreenProps {
+  navigation: CrewScreenNavigationProp;
+}
 
 // Temporary mock data
 const mockCrew: CrewMember[] = [
@@ -16,7 +29,7 @@ const mockCrew: CrewMember[] = [
   },
 ];
 
-export default function CrewScreen({ navigation }: any) {
+export default function CrewScreen({ navigation }: CrewScreenProps) {
   const theme = useTheme();
   const [crew, setCrew] = useState<CrewMember[]>(mockCrew);
   const [visible, setVisible] = useState(false);

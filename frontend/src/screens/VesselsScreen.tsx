@@ -3,6 +3,19 @@ import { View, StyleSheet, FlatList } from 'react-native';
 import { FAB, List, useTheme, Portal, Modal, Button, Divider } from 'react-native-paper';
 import { Vessel } from '../types/vessel';
 import { Ionicons } from '@expo/vector-icons';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type VesselStackParamList = {
+  VesselsList: undefined;
+  VesselDetails: { vessel: Vessel };
+  AddVessel: undefined;
+};
+
+type VesselsScreenNavigationProp = StackNavigationProp<VesselStackParamList, 'VesselsList'>;
+
+interface VesselsScreenProps {
+  navigation: VesselsScreenNavigationProp;
+}
 
 // Temporary mock data
 const mockVessels: Vessel[] = [
@@ -15,7 +28,7 @@ const mockVessels: Vessel[] = [
   },
 ];
 
-export default function VesselsScreen({ navigation }: any) {
+export default function VesselsScreen({ navigation }: VesselsScreenProps) {
   const theme = useTheme();
   const [vessels, setVessels] = useState<Vessel[]>(mockVessels);
   const [visible, setVisible] = useState(false);
@@ -53,7 +66,7 @@ export default function VesselsScreen({ navigation }: any) {
         data={vessels}
         renderItem={renderVessel}
         keyExtractor={item => item.id}
-        ItemSeparatorComponent={() => <List.Divider />}
+        ItemSeparatorComponent={() => <Divider />}
       />
       <FAB
         icon="plus"
