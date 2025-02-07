@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { useTheme, List, Text, Surface, TouchableRipple } from 'react-native-paper';
 
 interface AlphabeticalListProps<T> {
   data: T[];
@@ -40,8 +40,8 @@ export default function AlphabeticalList<T>({ data, getLabel, onSelect, selected
   const alphabet = sections.map(section => section.title);
 
   const getItemLayout = (_: any, index: number) => ({
-    length: 50,
-    offset: 50 * index,
+    length: 48, // Match List.Item default height
+    offset: 48 * index,
     index,
   });
 
@@ -60,29 +60,28 @@ export default function AlphabeticalList<T>({ data, getLabel, onSelect, selected
     if (typeof item === 'string' && item.length === 1) {
       // Render section header
       return (
-        <View style={[styles.sectionHeader, { backgroundColor: theme.colors.surface }]}>
-          <Text style={[styles.sectionHeaderText, { color: theme.colors.primary }]}>{item}</Text>
-        </View>
+        <List.Subheader
+          style={[styles.sectionHeader, { backgroundColor: theme.colors.surfaceVariant }]}
+        >
+          {item}
+        </List.Subheader>
       );
     }
 
     // Render list item
     const label = getLabel(item as T);
     return (
-      <TouchableOpacity
+      <List.Item
+        title={label}
         style={[
           styles.item,
           selectedValue === label && { backgroundColor: theme.colors.primaryContainer }
         ]}
-        onPress={() => onSelect(item as T)}
-      >
-        <Text style={[
-          styles.itemText,
+        titleStyle={[
           selectedValue === label && { color: theme.colors.onPrimaryContainer }
-        ]}>
-          {label}
-        </Text>
-      </TouchableOpacity>
+        ]}
+        onPress={() => onSelect(item as T)}
+      />
     );
   };
 
@@ -96,18 +95,22 @@ export default function AlphabeticalList<T>({ data, getLabel, onSelect, selected
           typeof item === 'string' ? `header_${item}` : `item_${getLabel(item as T)}_${index}`
         }
         getItemLayout={getItemLayout}
+        style={styles.list}
       />
-      <View style={styles.alphabetList}>
+      <Surface style={[styles.alphabetList, { elevation: 1 }]}>
         {alphabet.map((letter) => (
-          <TouchableOpacity
+          <TouchableRipple
             key={letter}
             onPress={() => scrollToLetter(letter)}
             style={styles.letterButton}
+            borderless
           >
-            <Text style={[styles.letter, { color: theme.colors.primary }]}>{letter}</Text>
-          </TouchableOpacity>
+            <Text variant="labelMedium" style={[styles.letter, { color: theme.colors.primary }]}>
+              {letter}
+            </Text>
+          </TouchableRipple>
         ))}
-      </View>
+      </Surface>
     </View>
   );
 }
@@ -117,27 +120,16 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
   },
-  item: {
-    padding: 15,
-    paddingRight: 40,
-    height: 50,
-    justifyContent: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  list: {
+    flex: 1,
   },
-  itemText: {
-    fontSize: 16,
+  item: {
+    paddingRight: 40,
+    height: 48,
   },
   sectionHeader: {
-    padding: 10,
-    height: 50,
+    height: 48,
     justifyContent: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  sectionHeaderText: {
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   alphabetList: {
     position: 'absolute',
@@ -148,17 +140,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    borderTopLeftRadius: 4,
+    borderBottomLeftRadius: 4,
   },
   letterButton: {
-    padding: 4,
-    width: 25,
-    height: 25,
+    width: 28,
+    height: 28,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 14,
   },
   letter: {
-    fontSize: 14,
     fontWeight: 'bold',
   },
 });
