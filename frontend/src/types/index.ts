@@ -22,6 +22,7 @@ export type WeatherData = Weather;
 export interface CrewMember {
   name: string;
   role: string;
+  profilePicture?: string; // Local file URI for profile picture
 }
 
 export interface Trip {
@@ -46,6 +47,7 @@ export interface Vessel {
   homePort: string;
   userId?: string;
   equipment?: string[]; // Optional equipment IDs
+  profilePicture?: string; // Local file URI for vessel picture
 }
 
 export interface Equipment {

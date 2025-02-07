@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Surface, Text, useTheme } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, ScrollView, StyleSheet } from 'react-native';
+import { TextInput, Button, Surface, Text, useTheme, MD3Theme } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Vessel } from '../types';
+import ProfilePicture from '../components/ProfilePicture';
 
 const defaultVessel: Omit<Vessel, 'id'> = {
   name: '',
@@ -15,24 +16,19 @@ const defaultVessel: Omit<Vessel, 'id'> = {
 
 export const VesselScreen: React.FC = () => {
   const theme = useTheme();
-  const [newVessel, setNewVessel] = useState<Omit<Vessel, 'id'>>(defaultVessel);
+  const [newVessel, setNewVessel] = useState<Omit<Vessel, 'id'>>({
+    ...defaultVessel,
+    profilePicture: undefined,
+  });
   const [vessels, setVessels] = useState<Vessel[]>([]);
+  const [selectedVessel, setSelectedVessel] = useState<Vessel | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  const handleSave = async () => {
-    try {
-      const vessel: Vessel = {
-        ...newVessel,
-        id: Date.now().toString(),
-      };
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
 
-      const updatedVessels = [...vessels, vessel];
-      await AsyncStorage.setItem('vessels', JSON.stringify(updatedVessels));
-      setVessels(updatedVessels);
-      setNewVessel(defaultVessel);
-    } catch (error) {
-      console.error('Error saving vessel:', error);
-    }
-  };
+  useEffect(() => {
+    loadVessels();
+  }, []);
 
   const loadVessels = async () => {
     try {
@@ -45,15 +41,62 @@ export const VesselScreen: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
-    loadVessels();
-  }, []);
+  const handleSave = async () => {
+    try {
+      const vessel: Vessel = {
+        ...newVessel,
+        id: Date.now().toString(),
+      };
+
+      const updatedVessels = [...vessels, vessel];
+      await AsyncStorage.setItem('vessels', JSON.stringify(updatedVessels));
+      setVessels(updatedVessels);
+      setNewVessel({ ...defaultVessel, profilePicture: undefined });
+    } catch (error) {
+      console.error('Error saving vessel:', error);
+    }
+  };
+
+  const handleUpdate = async (updatedVessel: Vessel) => {
+    try {
+      const updatedVessels = vessels.map(v => 
+        v.id === updatedVessel.id ? updatedVessel : v
+      );
+      await AsyncStorage.setItem('vessels', JSON.stringify(updatedVessels));
+      setVessels(updatedVessels);
+      setSelectedVessel(null);
+      setShowEditModal(false);
+    } catch (error) {
+      console.error('Error updating vessel:', error);
+    }
+  };
+
+  const handleDelete = async (vesselId: string) => {
+    try {
+      const updatedVessels = vessels.filter(v => v.id !== vesselId);
+      await AsyncStorage.setItem('vessels', JSON.stringify(updatedVessels));
+      setVessels(updatedVessels);
+      setSelectedVessel(null);
+      setShowEditModal(false);
+    } catch (error) {
+      console.error('Error deleting vessel:', error);
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <Surface style={styles.form} elevation={1}>
+    <ScrollView style={styles.container}>
+      <Surface style={styles.section} elevation={1}>
         <Text variant="titleLarge" style={styles.title}>Add New Vessel</Text>
         
+        <View style={styles.profilePictureContainer}>
+          <ProfilePicture
+            uri={newVessel.profilePicture}
+            size={120}
+            onPictureSelected={(uri) => setNewVessel({ ...newVessel, profilePicture: uri })}
+            onPictureRemoved={() => setNewVessel({ ...newVessel, profilePicture: undefined })}
+          />
+        </View>
+
         <TextInput
           label="Vessel Name"
           value={newVessel.name}
@@ -108,49 +151,94 @@ export const VesselScreen: React.FC = () => {
         <Text variant="titleLarge" style={styles.title}>My Vessels</Text>
         {vessels.map((vessel) => (
           <Surface key={vessel.id} style={styles.vesselCard} elevation={1}>
-            <Text variant="titleMedium">{vessel.name}</Text>
-            <Text variant="bodyMedium">{vessel.type}</Text>
-            <Text variant="bodySmall">
-              Registration: {vessel.registrationNumber}
-            </Text>
-            <Text variant="bodySmall">
-              Home Port: {vessel.homePort}
-            </Text>
+            <View style={styles.vesselCardContent}>
+              <ProfilePicture
+                uri={vessel.profilePicture}
+                size={80}
+                editable={false}
+              />
+              <View style={styles.vesselInfo}>
+                <Text variant="titleMedium">{vessel.name}</Text>
+                <Text variant="bodyMedium">{vessel.type}</Text>
+                <Text variant="bodySmall">
+                  Registration: {vessel.registrationNumber}
+                </Text>
+                <Text variant="bodySmall">
+                  Home Port: {vessel.homePort}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.cardActions}>
+              <Button
+                mode="outlined"
+                onPress={() => {
+                  setSelectedVessel(vessel);
+                  setShowEditModal(true);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                mode="outlined"
+                onPress={() => handleDelete(vessel.id)}
+                textColor={theme.colors.error}
+              >
+                Delete
+              </Button>
+            </View>
           </Surface>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  form: {
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 24,
-  },
-  title: {
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  input: {
-    marginBottom: 12,
-  },
-  button: {
-    marginTop: 8,
-  },
-  vesselList: {
-    flex: 1,
-  },
-  vesselCard: {
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 8,
-  },
-});
+const createStyles = (theme: MD3Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 16,
+    },
+    section: {
+      padding: 16,
+      marginBottom: 24,
+      borderRadius: 8,
+    },
+    title: {
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    profilePictureContainer: {
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    input: {
+      marginBottom: 12,
+    },
+    button: {
+      marginTop: 8,
+    },
+    vesselList: {
+      flex: 1,
+    },
+    vesselCard: {
+      padding: 16,
+      marginBottom: 12,
+      borderRadius: 8,
+    },
+    vesselCardContent: {
+      flexDirection: 'row',
+      marginBottom: 12,
+    },
+    vesselInfo: {
+      flex: 1,
+      marginLeft: 16,
+    },
+    cardActions: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+      gap: 8,
+    },
+  });
 
 export default VesselScreen;
