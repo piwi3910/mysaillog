@@ -41,8 +41,8 @@ export default function AlphabeticalList<T>({ data, getLabel, onSelect, selected
       sectionListRef.current?.scrollToLocation({
         sectionIndex,
         itemIndex: 0,
-        animated: true,
-        viewPosition: 0,
+        viewOffset: 0,
+        animated: false
       });
     }
   };
@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
   },
   item: {
     padding: 15,
+    paddingRight: 40,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
@@ -115,18 +116,24 @@ const styles = StyleSheet.create({
   },
   alphabetList: {
     position: 'absolute',
-    right: 5,
+    right: 0,
     top: 0,
     bottom: 0,
     justifyContent: 'space-evenly',
     alignItems: 'center',
     paddingVertical: 10,
+    paddingHorizontal: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
   letterButton: {
-    padding: 2,
+    padding: 4,
+    width: 25,
+    height: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   letter: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });
