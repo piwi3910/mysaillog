@@ -37,9 +37,11 @@ export const TripHistoryScreen = () => {
       const loadedTrips = tripsData ? JSON.parse(tripsData) : [];
       const loadedVessels = vesselsData ? JSON.parse(vesselsData) : [];
 
-      setTrips(loadedTrips.sort((a: Trip, b: Trip) => 
-        new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-      ));
+      setTrips(
+        loadedTrips.sort(
+          (a: Trip, b: Trip) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
+        ),
+      );
 
       const vesselsMap = loadedVessels.reduce((acc: Record<string, Vessel>, vessel: Vessel) => {
         acc[vessel.id] = vessel;
@@ -76,16 +78,12 @@ export const TripHistoryScreen = () => {
     const endLocation = selectedTrip.route[selectedTrip.route.length - 1];
 
     return (
-      <Modal
-        visible={showTripModal}
-        animationType="slide"
-        transparent={true}
-      >
+      <Modal visible={showTripModal} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <ScrollView>
               <Text style={styles.modalTitle}>Trip Details</Text>
-              
+
               <View style={styles.mapContainer}>
                 <MapView
                   style={styles.map}
@@ -108,16 +106,17 @@ export const TripHistoryScreen = () => {
 
               <View style={styles.detailsContainer}>
                 <Text style={styles.detailTitle}>Vessel</Text>
-                <Text style={styles.detailText}>{vessel?.name} ({vessel?.type})</Text>
+                <Text style={styles.detailText}>
+                  {vessel?.name} ({vessel?.type})
+                </Text>
 
                 <Text style={styles.detailTitle}>Date</Text>
-                <Text style={styles.detailText}>
-                  {formatDate(selectedTrip.startTime)}
-                </Text>
+                <Text style={styles.detailText}>{formatDate(selectedTrip.startTime)}</Text>
 
                 <Text style={styles.detailTitle}>Time</Text>
                 <Text style={styles.detailText}>
-                  {formatTime(selectedTrip.startTime)} - {selectedTrip.endTime ? formatTime(selectedTrip.endTime) : 'N/A'}
+                  {formatTime(selectedTrip.startTime)} -{' '}
+                  {selectedTrip.endTime ? formatTime(selectedTrip.endTime) : 'N/A'}
                 </Text>
 
                 <Text style={styles.detailTitle}>Statistics</Text>
@@ -174,7 +173,7 @@ export const TripHistoryScreen = () => {
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
           <Text style={styles.title}>Trip History</Text>
-          {trips.map((trip) => (
+          {trips.map(trip => (
             <TouchableOpacity
               key={trip.id}
               style={styles.tripCard}
@@ -184,11 +183,9 @@ export const TripHistoryScreen = () => {
               }}
             >
               <View style={styles.tripHeader}>
-                <Text style={styles.tripDate}>
-                  {formatDate(trip.startTime)}
-                </Text>
+                <Text style={styles.tripDate}>{formatDate(trip.startTime)}</Text>
                 <TouchableOpacity
-                  onPress={(e) => {
+                  onPress={e => {
                     e.stopPropagation();
                     setSelectedTrip(trip);
                     setShowShareModal(true);
@@ -197,9 +194,7 @@ export const TripHistoryScreen = () => {
                   <Ionicons name="share-outline" size={24} color="#007AFF" />
                 </TouchableOpacity>
               </View>
-              <Text style={styles.vesselName}>
-                {vessels[trip.vesselId]?.name}
-              </Text>
+              <Text style={styles.vesselName}>{vessels[trip.vesselId]?.name}</Text>
               <Text style={styles.tripStats}>
                 {calculateTripStats(trip).totalDistance.toFixed(1)} nm
               </Text>
@@ -224,15 +219,77 @@ export const TripHistoryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  button: {
+    alignItems: 'center',
+    borderRadius: 8,
     flex: 1,
-    backgroundColor: '#fff',
+    padding: 15,
   },
-  scrollView: {
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  closeButton: {
+    backgroundColor: '#8E8E93',
+  },
+  container: {
+    backgroundColor: '#fff',
     flex: 1,
   },
   content: {
     padding: 20,
+  },
+  detailText: {
+    color: '#666',
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  detailTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 10,
+  },
+  detailsContainer: {
+    gap: 10,
+  },
+  map: {
+    flex: 1,
+  },
+  mapContainer: {
+    borderRadius: 10,
+    height: 300,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  modalContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flex: 1,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    flex: 1,
+    marginTop: 50,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  shareButton: {
+    backgroundColor: '#007AFF',
   },
   title: {
     fontSize: 24,
@@ -241,97 +298,35 @@ const styles = StyleSheet.create({
   },
   tripCard: {
     backgroundColor: '#f8f8f8',
-    padding: 15,
+    borderLeftColor: '#007AFF',
+    borderLeftWidth: 4,
     borderRadius: 10,
     marginBottom: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: '#007AFF',
-  },
-  tripHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
+    padding: 15,
   },
   tripDate: {
     fontSize: 16,
     fontWeight: 'bold',
   },
-  vesselName: {
-    fontSize: 14,
-    color: '#666',
+  tripHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 5,
   },
   tripStats: {
-    fontSize: 14,
     color: '#007AFF',
+    fontSize: 14,
     marginBottom: 5,
   },
   tripTime: {
-    fontSize: 12,
     color: '#999',
+    fontSize: 12,
   },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    flex: 1,
-    backgroundColor: '#fff',
-    marginTop: 50,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  mapContainer: {
-    height: 300,
-    marginBottom: 20,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  map: {
-    flex: 1,
-  },
-  detailsContainer: {
-    gap: 10,
-  },
-  detailTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 10,
-  },
-  detailText: {
-    fontSize: 16,
+  vesselName: {
     color: '#666',
+    fontSize: 14,
     marginBottom: 5,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    gap: 10,
-  },
-  button: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  shareButton: {
-    backgroundColor: '#007AFF',
-  },
-  closeButton: {
-    backgroundColor: '#8E8E93',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
 });
 

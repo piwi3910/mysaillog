@@ -20,10 +20,10 @@ export interface SailingStats {
     };
   };
   timeOfDay: {
-    morning: number;   // 6-12
+    morning: number; // 6-12
     afternoon: number; // 12-18
-    evening: number;   // 18-24
-    night: number;     // 0-6
+    evening: number; // 18-24
+    night: number; // 0-6
   };
 }
 
@@ -66,10 +66,10 @@ export const calculateSailingStats = (trips: Trip[]): SailingStats => {
     let tripDistance = 0;
     for (let i = 1; i < trip.route.length; i++) {
       const distance = calculateDistance(
-        trip.route[i-1].latitude,
-        trip.route[i-1].longitude,
+        trip.route[i - 1].latitude,
+        trip.route[i - 1].longitude,
         trip.route[i].latitude,
-        trip.route[i].longitude
+        trip.route[i].longitude,
       );
       tripDistance += distance;
     }
@@ -143,7 +143,7 @@ export const getWindRose = (trips: Trip[]) => {
 
 export const getPopularSailingTimes = (trips: Trip[]) => {
   const hours = Array(24).fill(0);
-  
+
   trips.forEach(trip => {
     const startHour = new Date(trip.startTime).getHours();
     hours[startHour]++;
@@ -154,15 +154,15 @@ export const getPopularSailingTimes = (trips: Trip[]) => {
 
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371e3; // Earth's radius in meters
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ/2) * Math.sin(Δλ/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return (R * c) / 1852; // Convert meters to nautical miles
 };

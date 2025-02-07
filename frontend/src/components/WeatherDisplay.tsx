@@ -55,79 +55,69 @@ export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({ weather, compact
       </View>
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.detailText}>
-          Wind: {getWindDescription(weather.windSpeed)}
-        </Text>
-        <Text style={styles.detailText}>
-          Sea State: {getSeaState(weather.windSpeed)}
-        </Text>
-        <Text style={styles.detailText}>
-          Pressure: {weather.pressure} hPa
-        </Text>
-        {weather.notes && (
-          <Text style={styles.detailText}>
-            Conditions: {weather.notes}
-          </Text>
-        )}
+        <Text style={styles.detailText}>Wind: {getWindDescription(weather.windSpeed)}</Text>
+        <Text style={styles.detailText}>Sea State: {getSeaState(weather.windSpeed)}</Text>
+        <Text style={styles.detailText}>Pressure: {weather.pressure} hPa</Text>
+        {weather.notes && <Text style={styles.detailText}>Conditions: {weather.notes}</Text>}
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 10,
-  },
-  mainInfo: {
-    marginBottom: 15,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  infoBlock: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  value: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 5,
-  },
-  label: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
-  },
-  detailsContainer: {
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 15,
-    gap: 5,
-  },
-  detailText: {
-    fontSize: 14,
-    color: '#444',
-  },
   compactContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
     backgroundColor: '#f8f8f8',
     borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     padding: 10,
   },
   compactRow: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     gap: 5,
   },
   compactText: {
     fontSize: 16,
     fontWeight: '500',
+  },
+  container: {
+    backgroundColor: '#f8f8f8',
+    borderRadius: 10,
+    marginVertical: 10,
+    padding: 15,
+  },
+  detailText: {
+    color: '#444',
+    fontSize: 14,
+  },
+  detailsContainer: {
+    borderTopColor: '#eee',
+    borderTopWidth: 1,
+    gap: 5,
+    paddingTop: 15,
+  },
+  infoBlock: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  label: {
+    color: '#666',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  mainInfo: {
+    marginBottom: 15,
+  },
+  row: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  value: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 5,
   },
 });
 

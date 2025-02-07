@@ -8,14 +8,14 @@ export const SettingsScreen = () => {
     units: {
       speed: 'knots',
       distance: 'nautical',
-      temperature: 'celsius'
-    }
+      temperature: 'celsius',
+    },
   });
 
   const toggleDarkMode = () => {
     setSettings(prev => ({
       ...prev,
-      darkMode: !prev.darkMode
+      darkMode: !prev.darkMode,
     }));
     // TODO: Implement dark mode persistence
   };
@@ -27,10 +27,7 @@ export const SettingsScreen = () => {
           <Text style={styles.sectionTitle}>Display</Text>
           <View style={styles.settingItem}>
             <Text style={styles.settingLabel}>Dark Mode</Text>
-            <Switch
-              value={settings.darkMode}
-              onValueChange={toggleDarkMode}
-            />
+            <Switch value={settings.darkMode} onValueChange={toggleDarkMode} />
           </View>
         </View>
 
@@ -64,16 +61,16 @@ export const SettingsScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
+    flex: 1,
   },
   scrollView: {
     flex: 1,
   },
   section: {
-    padding: 20,
-    borderBottomWidth: 1,
     borderBottomColor: '#eee',
+    borderBottomWidth: 1,
+    padding: 20,
   },
   sectionTitle: {
     fontSize: 20,
@@ -81,17 +78,17 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   settingItem: {
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     paddingVertical: 10,
   },
   settingLabel: {
     fontSize: 16,
   },
   settingValue: {
-    fontSize: 16,
     color: '#666',
+    fontSize: 16,
   },
 });
 
