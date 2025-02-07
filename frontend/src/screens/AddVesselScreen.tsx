@@ -1,48 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import { VesselStackParamList } from '../types/navigation';
 import { Vessel } from '../types/vessel';
-
-type VesselStackParamList = {
-  VesselsList: undefined;
-  VesselDetails: { vessel: Vessel };
-  AddVessel: undefined;
-};
+import ImagePickerButton from '../components/ImagePickerButton';
 
 type AddVesselScreenNavigationProp = StackNavigationProp<VesselStackParamList, 'AddVessel'>;
+type AddVesselScreenRouteProp = RouteProp<VesselStackParamList, 'AddVessel'>;
 
 interface AddVesselScreenProps {
   navigation: AddVesselScreenNavigationProp;
+  route: AddVesselScreenRouteProp;
 }
 
-export default function AddVesselScreen({ navigation }: AddVesselScreenProps) {
+export default function AddVesselScreen({ navigation, route }: AddVesselScreenProps) {
   const theme = useTheme();
+  const editingVessel = route.params?.vessel;
   const [name, setName] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [mmsi, setMMSI] = useState('');
   const [callSign, setCallSign] = useState('');
+  const [image, setImage] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (editingVessel) {
+      setName(editingVessel.name);
+      setRegistrationNumber(editingVessel.registrationNumber);
+      setMake(editingVessel.make || '');
+      setModel(editingVessel.model || '');
+      setMMSI(editingVessel.mmsi || '');
+      setCallSign(editingVessel.callSign || '');
+      setImage(editingVessel.image);
+    }
+  }, [editingVessel]);
 
   const handleSubmit = () => {
     // TODO: Add proper validation and API call
-    const newVessel: Vessel = {
-      id: Date.now().toString(), // Temporary ID generation
+    const vesselData: Vessel = {
+      id: editingVessel?.id || Date.now().toString(), // Temporary ID generation
       name,
       registrationNumber,
       make,
       model,
       mmsi,
       callSign,
+      image,
     };
 
-    // TODO: Add vessel to the database
+    // TODO: Add/Update vessel in the database
     navigation.goBack();
   };
 
   return (
     <ScrollView style={styles.container}>
+      <ImagePickerButton
+        onImageSelected={setImage}
+        existingImage={image}
+      />
+
       <TextInput
         label="Vessel Name"
         value={name}
@@ -93,7 +112,7 @@ export default function AddVesselScreen({ navigation }: AddVesselScreenProps) {
           style={styles.button}
           disabled={!name || !registrationNumber}
         >
-          Add Vessel
+          {editingVessel ? 'Update Vessel' : 'Add Vessel'}
         </Button>
         <Button
           mode="outlined"
