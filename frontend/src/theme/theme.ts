@@ -38,35 +38,52 @@ export const darkTheme: MD3Theme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#4d9fff',
-    onPrimary: '#003258',
-    primaryContainer: '#004881',
+    // Primary colors
+    primary: '#66b3ff', // Lighter blue for better visibility
+    onPrimary: '#000000',
+    primaryContainer: '#004c99', // Darker blue for containers
     onPrimaryContainer: '#d1e4ff',
+    
+    // Secondary colors
     secondary: '#03dac6',
-    onSecondary: '#00382f',
-    secondaryContainer: '#005047',
-    onSecondaryContainer: '#70f7e7',
-    background: '#121212',
+    onSecondary: '#000000',
+    secondaryContainer: '#018786',
+    onSecondaryContainer: '#89ffff',
+    
+    // Background colors
+    background: '#000000', // True black background
     onBackground: '#ffffff',
-    surface: '#1e1e1e',
+    
+    // Surface colors
+    surface: '#000000', // True black surface
     onSurface: '#ffffff',
-    surfaceVariant: '#2c2c2c',
+    surfaceVariant: '#1a1a1a', // Slightly lighter than black for contrast
     onSurfaceVariant: '#e0e0e0',
-    error: '#cf6679',
-    onError: '#680003',
-    errorContainer: '#930006',
-    onErrorContainer: '#ffdad6',
+    
+    // Error colors
+    error: '#ff5252',
+    onError: '#000000',
+    errorContainer: '#cf6679',
+    onErrorContainer: '#ffffff',
+    
+    // Elevation levels
     elevation: {
-      level0: '#121212',
-      level1: '#1e1e1e',
-      level2: '#232323',
-      level3: '#252525',
-      level4: '#272727',
-      level5: '#2c2c2c',
+      level0: '#000000',
+      level1: '#1a1a1a',
+      level2: '#222222',
+      level3: '#272727',
+      level4: '#2c2c2c',
+      level5: '#333333',
     },
-    surfaceDisabled: '#1e1e1e',
+    
+    // Disabled states
+    surfaceDisabled: '#1a1a1a',
     onSurfaceDisabled: 'rgba(255, 255, 255, 0.38)',
-    backdrop: 'rgba(0, 0, 0, 0.5)',
+    backdrop: 'rgba(0, 0, 0, 0.8)',
+    
+    // Outline colors
+    outline: '#666666',
+    outlineVariant: '#444444',
   },
 };
 
