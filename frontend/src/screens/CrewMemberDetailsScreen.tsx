@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Text, useTheme, List, Button, Avatar } from 'react-native-paper';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Text, useTheme, List, Button } from 'react-native-paper';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { CrewStackParamList } from '../types/navigation';
-import { Ionicons } from '@expo/vector-icons';
+import EditableProfilePicture from '../components/EditableProfilePicture';
+import { CrewMember } from '../types/crew';
 
 type CrewMemberDetailsScreenNavigationProp = StackNavigationProp<CrewStackParamList, 'CrewMemberDetails'>;
 type CrewMemberDetailsScreenRouteProp = RouteProp<CrewStackParamList, 'CrewMemberDetails'>;
@@ -18,22 +19,27 @@ export default function CrewMemberDetailsScreen({ navigation, route }: CrewMembe
   const { crewMember } = route.params;
   const theme = useTheme();
 
+  const handleImageChange = (uri: string) => {
+    // TODO: Update crew member image in database
+    const updatedCrewMember: CrewMember = {
+      ...crewMember,
+      image: uri
+    };
+    
+    // Update the route params to reflect the change
+    navigation.setParams({
+      crewMember: updatedCrewMember
+    });
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        {crewMember.image ? (
-          <Avatar.Image
-            size={150}
-            source={{ uri: crewMember.image }}
-          />
-        ) : (
-          <Avatar.Icon
-            size={150}
-            icon={({ size }) => (
-              <Ionicons name="person" size={size * 0.6} color={theme.colors.onSurface} />
-            )}
-          />
-        )}
+        <EditableProfilePicture
+          image={crewMember.image}
+          size={150}
+          onImageChange={handleImageChange}
+        />
         <Text variant="headlineMedium" style={styles.name}>
           {crewMember.firstName} {crewMember.lastName}
         </Text>
