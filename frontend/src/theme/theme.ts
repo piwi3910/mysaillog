@@ -40,33 +40,46 @@ export const darkTheme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#4D9FFF', // Lighter blue for better visibility
+    // Primary colors with better contrast
+    primary: '#66B2FF',
     onPrimary: colors.black,
     primaryContainer: '#004C99',
-    onPrimaryContainer: '#D1E4FF',
+    onPrimaryContainer: '#CCE5FF',
+    
+    // Secondary colors with better contrast
     secondary: '#50E070',
     onSecondary: colors.black,
     secondaryContainer: '#005321',
     onSecondaryContainer: '#95F5A8',
+    
+    // True black background
     background: colors.black,
     onBackground: colors.white,
     surface: colors.black,
     onSurface: colors.white,
-    surfaceVariant: '#1A1A1A',
+    
+    // Surface variants with better contrast
+    surfaceVariant: '#121212',
     onSurfaceVariant: colors.grey[300],
+    
+    // Error colors with better contrast
     error: '#FF5252',
     onError: colors.black,
     errorContainer: '#CF6679',
     onErrorContainer: colors.white,
-    outline: colors.grey[600],
+    
+    // Outline colors
+    outline: colors.grey[500],
     outlineVariant: colors.grey[700],
+    
+    // Elevation with true black base
     elevation: {
       level0: colors.black,
-      level1: '#1A1A1A',
-      level2: '#222222',
-      level3: '#272727',
-      level4: '#2C2C2C',
-      level5: '#333333',
+      level1: '#121212',
+      level2: '#1E1E1E',
+      level3: '#222222',
+      level4: '#242424',
+      level5: '#272727',
     },
   },
 };
