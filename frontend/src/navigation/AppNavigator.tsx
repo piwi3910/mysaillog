@@ -10,6 +10,8 @@ import AnalyticsScreen from '../screens/AnalyticsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SafetyScreen from '../screens/SafetyScreen';
 import EquipmentScreen from '../screens/EquipmentScreen';
+import VesselsScreen from '../screens/VesselsScreen';
+import CrewScreen from '../screens/CrewScreen';
 
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
@@ -73,6 +75,24 @@ export default function AppNavigator() {
           title: 'MySailLog',
           drawerIcon: ({ color, size }) => (
             <Ionicons name="boat-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Vessels"
+        component={VesselsScreen}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="boat-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Crew"
+        component={CrewScreen}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="people-outline" size={size} color={color} />
           ),
         }}
       />
