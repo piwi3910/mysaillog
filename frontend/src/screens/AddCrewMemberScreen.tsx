@@ -6,6 +6,7 @@ import { RouteProp } from '@react-navigation/native';
 import { CrewStackParamList } from '../types/navigation';
 import { CrewMember } from '../types/crew';
 import ImagePickerButton from '../components/ImagePickerButton';
+import RoleSelector from '../components/RoleSelector';
 
 type AddCrewMemberScreenNavigationProp = StackNavigationProp<CrewStackParamList, 'AddCrewMember'>;
 type AddCrewMemberScreenRouteProp = RouteProp<CrewStackParamList, 'AddCrewMember'>;
@@ -103,12 +104,9 @@ export default function AddCrewMemberScreen({ navigation, route }: AddCrewMember
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      <TextInput
-        label="Role"
+      <RoleSelector
         value={role}
-        onChangeText={setRole}
-        mode="outlined"
-        style={styles.input}
+        onSelect={setRole}
       />
       
       <View style={styles.section}>
