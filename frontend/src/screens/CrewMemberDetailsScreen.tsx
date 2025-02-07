@@ -5,6 +5,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { CrewStackParamList } from '../types/navigation';
 import EditableProfilePicture from '../components/EditableProfilePicture';
+import PhoneNumberWithWhatsApp from '../components/PhoneNumberWithWhatsApp';
 import { CrewMember } from '../types/crew';
 
 type CrewMemberDetailsScreenNavigationProp = StackNavigationProp<CrewStackParamList, 'CrewMemberDetails'>;
@@ -50,11 +51,7 @@ export default function CrewMemberDetailsScreen({ navigation, route }: CrewMembe
 
       <List.Section>
         <List.Subheader>Contact Information</List.Subheader>
-        <List.Item
-          title="Phone"
-          description={crewMember.phoneNumber}
-          left={props => <List.Icon {...props} icon="phone" />}
-        />
+        <PhoneNumberWithWhatsApp phoneNumber={crewMember.phoneNumber} />
         {crewMember.email && (
           <List.Item
             title="Email"
